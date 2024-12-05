@@ -29,7 +29,9 @@ DIGIT	[0-9]
  write {fprintf(yyout, "WRITE\n"); }
  {ID} {fprintf(yyout, "IDENTIFIER, %s\n", yytext); }
  [ \t\n]+
- [";" | "." | "," ]  
+ ";"     {fprintf(yyout, "END_OF_EXPRESSION\n"); }
+ "."     {fprintf(yyout, "END_OF_VARIABLE_INITIALIZATION\n"); }
+ ","     {fprintf(yyout, "END_OF_VARIABLE_DECLARATION\n"); }
 %%
 /* recomendavel declarar sempre
    funcao yywrap() */
