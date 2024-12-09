@@ -3,7 +3,7 @@
 #include <string.h>
 %}
 ID	[a-zA-Z][a-zA-Z0-9]*
-DIGIT	[0-9]
+DIGIT	[0-9]+
 %%
 ":=" {fprintf(yyout, "ASSIGN\n"); }
 "<" {fprintf(yyout, "LT\n"); }
