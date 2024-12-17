@@ -1,53 +1,48 @@
 %{
+#include "simple_parser.tab.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+int yylineno = 1; 
 %}
+
 ID	[a-zA-Z][a-zA-Z0-9]*
-DIGIT	[0-9]
+DIGIT	[0-9]+
+
 %%
-":=" {fprintf(yyout, "ASSIGN\n"); }
-"<" {fprintf(yyout, "LT\n"); }
-">" {fprintf(yyout, "GT\n"); }
-"+" {fprintf(yyout, "ADD\n"); }
-"-" {fprintf(yyout, "SUB\n"); }
-"*" {fprintf(yyout, "MUL\n"); }
-"/" {fprintf(yyout, "DIV\n"); }
-"^" {fprintf(yyout, "EXP\n"); }
- {DIGIT} {fprintf(yyout, "NUMBER, %s\n", yytext); }
- do {fprintf(yyout, "DO\n"); }
- else {fprintf(yyout, "ELSE\n"); }
- end {fprintf(yyout, "END\n"); }
- fi {fprintf(yyout, "FI\n"); }
- if {fprintf(yyout, "IF\n"); }
- in {fprintf(yyout, "IN\n"); }
- integer {fprintf(yyout, "INTEGER\n"); }
- let {fprintf(yyout, "LET\n"); }
- read {fprintf(yyout, "READ\n"); }
- skip {fprintf(yyout, "SKIP\n"); }
- then {fprintf(yyout, "THEN\n"); }
- while {fprintf(yyout, "WHILE\n"); }
- write {fprintf(yyout, "WRITE\n"); }
- {ID} {fprintf(yyout, "IDENTIFIER, %s\n", yytext); }
- [ \t\n]+
- [";" | "." | "," ]  
+do {return DO; }
+else {return ELSE; }
+end {return END; }
+fi {return FI; }
+if {return IF; }
+in {return IN; }
+integer {return INTEGER; }
+let {return LET; }
+read {return READ; }
+skip {return SKIP; }
+then {return THEN; }
+while {return WHILE; }
+write {return WRITE; }
+{DIGIT}+ {return NUMBER; }
+{ID} {return IDENTIFIER;}
+":=" {return ASSIGN; }
+"=" {return EQ; }
+"<" {return LT; }
+">" {return GT; }
+"+" {return ADD; }
+"-" {return SUB; }
+"*" {return MUL; }
+"/" {return DIV; }
+"^" {return EXP; }
+"(" { return '('; }
+")" { return ')'; }
+";" { return ';'; }
+"," { return ','; }
+"." { return '.'; }
+[ \t\n\r]+ { /* ignorar quebra de linha, tabulação, espaços */ }
 %%
-/* recomendavel declarar sempre
-   funcao yywrap() */
-int yywrap(){};
 
-/* programa principal */
-int main(int argc, char **argv) {
-  if (argc == 1) {
-    printf("Forneça um arquivo de entrada!");
-    return 0;
-  }
+int yywrap(){
+  return 1;
+};
 
-  extern FILE *yyin, * yyout;
-  
-  yyin = fopen(argv[1],"r");
-  yyout = fopen("Output.txt", "w");
-
-  yylex(); /* scanner gerado por Flex */
-  
-  return 0;
-}
