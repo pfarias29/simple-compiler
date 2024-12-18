@@ -39,6 +39,7 @@ write {return WRITE; }
 ";" { return ';'; }
 "," { return ','; }
 "." { return '.'; }
+\n { yylineno++; } { /* contar linhas */ }
 [ \t\n\r]+ { /* ignorar quebra de linha, tabulação, espaços */ }
 %%
 
