@@ -1,7 +1,9 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
+extern FILE *yyin;
 extern int yylex(void);
 extern int yylineno; // Linha atual do analisador léxico
 extern char* yytext; // Texto atual do analisador léxico
@@ -38,7 +40,7 @@ id_seq:
 
 command_sequence:
     command                      
-    | command_sequence command                                      {printf("Comando único ou sequencia reconhecidos.\n");}
+    | command_sequence command                                      {printf("Comando unico ou sequencia reconhecidos.\n");}
 ;
 
 command:
@@ -70,8 +72,37 @@ void yyerror(const char *s) {
     fprintf(stderr, "Erro: %s na linha %d, proximo a '%s'\n", s, yylineno, yytext);
 }
 
-int main() {
-    printf("Digite o codigo fonte para analise:\n");
+int main(int argc, char **argv) {
+    int opt;
+    FILE *file = NULL;
+
+    // Processa as opções de linha de comando
+    while ((opt = getopt(argc, argv, "f:")) != -1) {
+        switch (opt) {
+            case 'f':
+                file = fopen(optarg, "r");
+                if (!file) {
+                    perror(optarg);
+                    return 1;
+                }
+                yyin = file; // Redireciona a entrada do analisador léxico para o arquivo
+                break;
+            default:
+                fprintf(stderr, "Uso: %s [-f <arquivo de entrada>]\n", argv[0]);
+                return 1;
+        }
+    }
+
+    if (file == NULL) {
+        printf("Digite o codigo fonte para analise:\n");
+        yyin = stdin; // Redireciona a entrada do analisador léxico para o terminal
+    }
+
     yyparse();
+
+    if (file != NULL) {
+        fclose(file);
+    }
+
     return 0;
 }
