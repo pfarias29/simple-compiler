@@ -9,21 +9,23 @@ ID	[a-zA-Z][a-zA-Z0-9]*
 DIGIT	[0-9]
 
 %%
-do {return DO; }
-else {return ELSE; }
-end {return END; }
-fi {return FI; }
-if {return IF; }
-in {return IN; }
-integer {return INTEGER; }
-let {return LET; }
-read {return READ; }
-skip {return SKIP; }
-then {return THEN; }
-while {return WHILE; }
-write {return WRITE; }
-{DIGIT}+ {return NUMBER; }
-{ID} {return IDENTIFIER;}
+do       {return DO; }
+else     {return ELSE; }
+end      {return END; }
+fi       {return FI; }
+if       {return IF; }
+in       {return IN; }
+integer  {return INTEGER; }
+let      {return LET; }
+read     {return READ; }
+skip     {return SKIP; }
+then     {return THEN; }
+while    {return WHILE; }
+write    {return WRITE; }
+{DIGIT}+ { yylval.val = atoi(yytext);
+	       return NUMBER; }
+{ID}     { yylval.id = strdup(yytext);
+	       return IDENTIFIER; }
 ":=" {return ASSIGN; }
 "=" {return EQ; }
 "<" {return LT; }

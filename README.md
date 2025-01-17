@@ -1,8 +1,22 @@
 # simple-compiler
 
+## Como compilar (Linux)
+```sh
+make
+```
+Rodar o analisador sintático
+- Opção 1: Interagindo no terminal
+```
+./simple
+```
+- Opção 2: Fornecendo arquivo como input
+```
+./simple -f <nome-do-arquivo:simple_program>
+    ```
+
 ## Como rodar o analizador léxico (em Windows)
 ```
-.\win_flex.exe .\lexical-analyzer.l
+.\win_flex.exe .\simple_lex.l
 gcc .\lex.yy.c -o arquivo-saida -lm
 .\arquivo-saida.exe .\simple_program.txt
 ```
@@ -24,7 +38,7 @@ gcc .\lex.yy.c -o arquivo-saida -lm
 
 3. Gerar o analisar léxico
     ```
-    flex lexical-analyzer.l
+    flex simple_lex.l
     ```
 
     O comando acima gerará o arquivo:
