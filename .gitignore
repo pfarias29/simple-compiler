@@ -1,0 +1,3 @@
+simple_parser.tab.*
+lex.yy.c
+simple

@@ -1,0 +1,6 @@
+let
+integer a, b.
+in
+write a + b;
+end
+
