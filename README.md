@@ -4,15 +4,18 @@
 ```sh
 make
 ```
+
 Rodar o analisador sintático
 - Opção 1: Interagindo no terminal
-```
+```sh
 ./simple
 ```
+
 - Opção 2: Fornecendo arquivo como input
-```
+
+```sh
 ./simple -f <nome-do-arquivo:simple_program>
-    ```
+```
 
 ## Como rodar o analizador léxico (em Windows)
 ```
