@@ -29,8 +29,8 @@ program:
     LET declarations IN command_sequence END                        {printf("Parsing completo: programa reconhecido.\n");}
 ;
 
-declarations:
-    INTEGER id_seq '.'                                              {printf("Declaracoes reconhecidas.\n");}
+declarations: /* empty */
+    | INTEGER id_seq '.'                                            {printf("Declaracoes reconhecidas.\n");}
 ;
 
 id_seq:

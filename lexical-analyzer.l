@@ -3,11 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-int yylineno = 1; 
 %}
 
 ID	[a-zA-Z][a-zA-Z0-9]*
-DIGIT	[0-9]+
+DIGIT	[0-9]
 
 %%
 do {return DO; }
