@@ -1,29 +1,11 @@
 # simple-compiler
 
-## Como compilar (Linux)
-```sh
-make
-```
-
-Rodar o analisador sintático
-- Opção 1: Interagindo no terminal
-```sh
-./simple
-```
-
-- Opção 2: Fornecendo arquivo como input
-
-```sh
-./simple -f <nome-do-arquivo:simple_program>
-```
-
 ## Como rodar o analizador léxico (em Windows)
 ```
 .\win_flex.exe .\simple_lex.l
 gcc .\lex.yy.c -o arquivo-saida -lm
 .\arquivo-saida.exe .\simple_program.txt
 ```
-
 ## Como rodar o analizador sintático (Windows)
 1. Instalar o bison e o flex
 
@@ -62,4 +44,33 @@ gcc .\lex.yy.c -o arquivo-saida -lm
         ```
         .\parser_v1.exe -f <nome-do-arquivo:simple_program>.txt
         ```
+
+## Como rodar o analisador léxico (em Linux)
+Instalar o flex:
+```
+sudo apt update
+sudo apt install flex gcc
+```
+Para rodar:
+```
+flex lexical-analyzer.l
+gcc lex.yy.c -o arquivo-saida -lm
+./arquivo-saida simple_program.txt
+```
+## Como compilar (Linux)
+```sh
+make
+```
+
+Rodar o analisador sintático
+- Opção 1: Interagindo no terminal
+```sh
+./simple
+```
+
+- Opção 2: Fornecendo arquivo como input
+
+```sh
+./simple -f <nome-do-arquivo:simple_program>
+```
 
