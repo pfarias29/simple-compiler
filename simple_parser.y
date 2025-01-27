@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 extern FILE *yyin;
 extern int yylex(void);
@@ -15,6 +16,7 @@ struct Id_Node
 {
 	char *id;
 	Id_Node *nxt;
+	bool used;
 };
 
 
@@ -32,6 +34,7 @@ Id_Node *id_node_append(Id_Node *node, char *id) // Cria novo e retorna novo nod
 	Id_Node *new_id = malloc(sizeof(*node));
 	new_id->id = id;
 	new_id->nxt = node;
+	new_id->used = false;
 	return new_id;
 };
 
@@ -40,6 +43,7 @@ struct Context
 {
 	Id_Node *id_table;  // Tabela de identificadores
 	int errors;         // Numero de erros
+	int warnings;
 };
 
 Context global_context;
@@ -48,6 +52,7 @@ void create_context()
 {
 	global_context.id_table = NULL;	
 	global_context.errors = 0;	
+	global_context.warnings = 0;	
 };
 
 void add_new_indentifier(char *id) 
@@ -63,9 +68,24 @@ void add_new_indentifier(char *id)
 
 void check_identifier(char *id)
 {
-	if (id_node_find(global_context.id_table, id) == NULL) {
+	Id_Node* node = id_node_find(global_context.id_table, id);
+	if (node == NULL) {
 		fprintf(stderr, "ERRO: Variavel `%s` nao foi declarada\n", id);
 		global_context.errors++;
+	}
+	else {
+		node->used = true;
+	}
+}
+
+void check_unused_variables() {
+	Id_Node *node = global_context.id_table;
+	while(node != NULL) {
+		if (!node->used) {
+            fprintf(stderr, "WARNING: Variavel `%s` nao foi utilizada\n", node->id);
+			global_context.warnings += 1;
+		}
+		node = node->nxt;
 	}
 }
 
@@ -174,6 +194,12 @@ int main(int argc, char **argv) {
     if (file != NULL) {
         fclose(file);
     }
+
+	check_unused_variables();
+
+	if (global_context.warnings > 0) {
+		fprintf(stdout, "Compilacao terminada com %d warnings\n", global_context.warnings);
+	}
 
 	if (global_context.errors > 0) {
 		fprintf(stdout, "Compilacao terminada com %d erros\n", global_context.errors);
