@@ -25,6 +25,6 @@ extern int code_offset;
 int gen_label();
 int reserve_loc();
 
-void codeGenerator(enum code_ops opcode, int arg);
+void codeGenerator(enum code_ops opcode, int *arg);
 void back_patch(int addr, enum code_ops operation, int arg);
 void print_code();

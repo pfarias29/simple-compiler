@@ -1,5 +1,4 @@
 #include "code_generator.h"
-#include "code.h"
 /* OPERATIONS: External Representation */
 char *op_name[] = {"halt", "store", "jmp_false", "goto", "data", "ld_int", "ld_var", "in_int", "out_int","lt", "eq", "gt", "add", "sub", "mul", "div", "exp" };
 struct instruction code[999];
@@ -18,7 +17,7 @@ void fetch_execute_cycle() {
             printf( "halt\n" ); break;
          case OP_READ_INT: 
             printf( "Input: " );
-            scanf( "%ld", &stack[ar+ir.arg] ); break;
+            scanf( "%d", &stack[ar+ir.arg] ); break;
          case OP_WRITE_INT : 
             printf( "Output: %d\n", stack[top--] ); break;
          case OP_STORE : 
@@ -86,19 +85,19 @@ int reserve_loc() {
    return code_offset++;
 }
 
-void codeGenerator(enum code_opcodes opcode, int *arg){
-   code[code_offset].op = operation;
-   code[code_offset++].arg = arg;
+void codeGenerator(enum code_ops opcode, int *arg){
+   code[code_offset].opcode = opcode;
+   code[code_offset++].arg = *arg;
 }
 
 void back_patch( int addr, enum code_ops operation, int arg ) {
-   code[addr].op = operation;
+   code[addr].opcode = operation;
    code[addr].arg = arg;
 }
 void print_code() {
    int i = 0;
    while (i < code_offset) {
-      printf("%3ld: %-10s%4ld\n",i,op_name[(int) code[i].op], code[i].arg );
+      printf("%3d: %-10s%4d\n",i,op_name[(int) code[i].opcode], code[i].arg );
       i++;
    }
 }
