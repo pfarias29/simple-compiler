@@ -22,9 +22,9 @@ skip     {return SKIP; }
 then     {return THEN; }
 while    {return WHILE; }
 write    {return WRITE; }
-{DIGIT}+ { yylval.val = atoi(yytext);
+{DIGIT}+ { yylval.ival = atoi(yytext);
 	       return NUMBER; }
-{ID}     { yylval.id = strdup(yytext);
+{ID}     { yylval.sval = strdup(yytext);
 	       return IDENTIFIER; }
 ":=" {return ASSIGN; }
 "=" {return EQ; }

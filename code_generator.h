@@ -1,39 +1,30 @@
-/*Data Segment*/
-int data_offset = 0;    /* Initial offset */
-int data_location()     /* Reserves a data location */
-{
-    return data_offset++;
-}
-/*Code Segment*/
-int code_offset = 0; /* Initial offset */
-int gen_label() /* Returns current offset */
-{
-    return code_offset;
-}
-int reserve_loc() /* Reserves a code location */
-{
-    return code_offset++;
-}
-/* Generates code at current location */
-void gen_code( enum code_ops operation, int arg )
-{ 
-    code[code_offset].op = operation;
-    code[code_offset++].arg = arg;
-}
-/* Generates code at a reserved location */
-void back_patch( int addr, enum code_ops operation, int arg )
-{
-    code[addr].op = operation;
-    code[addr].arg = arg;
-}
-/*-------------------------------------------------------------------------
-Print Code to stdio
--------------------------------------------------------------------------*/
-void print_code()
-{
-    int i = 0;
-    while (i < code_offset) {
-        printf("%3ld: %-10s%4ld\n",i,op_name[(int) code[i].op], code[i].arg );
-        i++;
-    }
-}
+#include <stdio.h>
+
+enum code_ops { OP_HALT, OP_STORE, OP_JMP_FALSE, OP_GOTO, OP_DATA, OP_LD_INT, OP_LD_VAR, OP_READ_INT, OP_WRITE_INT, OP_LT, OP_EQ, OP_GT, OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_EXP };
+
+extern char *op_name[];
+
+struct instruction {
+    enum code_ops opcode;
+    int arg;
+};
+
+extern struct instruction code[999];
+extern int stack[999];
+extern int pc;
+extern struct instruction ir;
+extern int ar;
+extern int top;
+
+void fetch_execute_cycle();
+
+extern int data_offset;
+int data_location();
+
+extern int code_offset;
+int gen_label();
+int reserve_loc();
+
+void codeGenerator(enum code_ops opcode, int arg);
+void back_patch(int addr, enum code_ops operation, int arg);
+void print_code();
