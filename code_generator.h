@@ -6,14 +6,16 @@ extern char *op_name[];
 
 struct instruction {
     enum code_ops opcode;
-    int arg;
+    int arg1;
+    int arg2;
+    int arg3;
 };
 
 extern struct instruction code[999];
 extern int stack[999];
 extern int pc;
 extern struct instruction ir;
-extern int ar;
+extern int acc;
 extern int top;
 
 void fetch_execute_cycle();
@@ -22,6 +24,7 @@ extern int data_offset;
 int data_location();
 
 extern int code_offset;
+extern int code_offset_TM;
 int gen_label();
 int reserve_loc();
 
