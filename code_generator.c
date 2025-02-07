@@ -1,4 +1,8 @@
+#include <stdlib.h>
 #include "code_generator.h"
+#include "math.h"
+
+
 /* OPERATIONS: External Representation */
 char *op_name[] = {"halt", "store", "jmp_false", "goto", "data", "ld_int", "ld_var", "in_int", "out_int","lt", "eq", "gt", "add", "sub", "mul", "div", "exp" };
 struct instruction code[999];
@@ -64,7 +68,7 @@ void fetch_execute_cycle() {
             top--;
             break;
          case OP_EXP : 
-            stack[top-1] = stack[top-1] * stack[top];
+            stack[top-1] = pow(stack[top-1], stack[top]);
             top--;
             break;
          default : 
@@ -85,9 +89,16 @@ int reserve_loc() {
    return code_offset++;
 }
 
-void codeGenerator(enum code_ops opcode, int *arg){
-   code[code_offset].opcode = opcode;
-   code[code_offset++].arg = *arg;
+void codeGenerator(enum code_ops operation, int arg){
+   if (arg == NULL) {
+      exit(1);
+   }
+   if (code_offset >= 999) {
+      fprintf(stderr, "Error: Code array out of bounds\n");
+      exit(1);
+   }
+   code[code_offset].opcode = operation;
+   code[code_offset++].arg = arg;
 }
 
 void back_patch( int addr, enum code_ops operation, int arg ) {
