@@ -70,7 +70,6 @@ void create_context()
 
 void add_new_indentifier(char *id) 
 {
-	printf("ID: %s\n",id);
 	if (id_node_find(global_context.id_table, id) != NULL) {
 		fprintf(stderr, "ERRO: Variavel `%s` ja foi declarada, nome repetido\n", id);
 		global_context.errors++;
@@ -174,17 +173,38 @@ command_sequence:
 ;
 
 command: SKIP
-    | IDENTIFIER ASSIGN exp ';' { printf("ASSIGN %s t%d\n", $1, $3); check_identifier_context(OP_STORE,$1);}
-    | IF exp {$1 = (struct labels *) labelSpaceAllocation(); $1->label_jmp_false = reserve_loc();} 
-      THEN command_sequence {$1->label_goto = reserve_loc();} ELSE {}
-      FI ';' { printf("IF t%d ... THEN ... FI\n", $2); back_patch($1->label_goto, OP_GOTO, 0);}
-    | WHILE exp DO command_sequence END ';' { printf("WHILE t%d ... DO ...\n", $2); }
-    | READ IDENTIFIER ';' { printf("READ %s\n", $2); check_identifier_context(OP_READ_INT, $2);}
-    | WRITE exp { printf("WRITE t%d\n", $2); codeGenerator(OP_WRITE_INT, 0);}
+    | IDENTIFIER ASSIGN exp ';' { 
+        printf("ASSIGN %s t%d\n", $1, $3); 
+        check_identifier_context(OP_STORE,$1);
+    }
+    | IF exp {
+        $1 = (struct labels *) labelSpaceAllocation(); 
+        $1->label_jmp_false = reserve_loc();
+      } THEN command_sequence {
+        $1->label_goto = reserve_loc();
+      } ELSE {} FI ';' { 
+        printf("IF t%d ... THEN ... FI\n", $2); 
+        back_patch($1->label_goto, OP_GOTO, 0);
+    }
+    | WHILE exp DO command_sequence END ';' { 
+        printf("WHILE t%d ... DO ...\n", $2); 
+    }
+    | READ IDENTIFIER ';' { 
+        printf("READ %s\n", $2); 
+        check_identifier_context(OP_READ_INT, $2);
+    }
+    | WRITE exp { 
+        printf("WRITE t%d\n", $2); 
+        codeGenerator(OP_WRITE_INT, 0);
+    }
     ;
 
 exp:
-      NUMBER { $$ = temp_count++; printf("t%d = %d\n", $$, $1);  codeGenerator(OP_LD_INT, $1); }
+      NUMBER { 
+        $$ = temp_count++; 
+        printf("t%d = %d\n", $$, $1);  
+        codeGenerator(OP_LD_INT, $1);
+    }
     | IDENTIFIER { 
         $$ = temp_count++; 
         printf("t%d = %s\n", $$, $1); 
@@ -195,14 +215,39 @@ exp:
         check_identifier_context(OP_LD_VAR, $1);
     }
     | '(' exp ')' { $$ = $2; }
-    | exp ADD exp { $$ = temp_count++; printf("t%d = t%d + t%d\n", $$, $1, $3); codeGenerator(OP_ADD, 0);}
-    | exp SUB exp { $$ = temp_count++; printf("t%d = t%d - t%d\n", $$, $1, $3); codeGenerator(OP_SUB, 0);}
-    | exp MUL exp { $$ = temp_count++; printf("t%d = t%d * t%d\n", $$, $1, $3); codeGenerator(OP_MUL, 0);}
-    | exp DIV exp { $$ = temp_count++; printf("t%d = t%d / t%d\n", $$, $1, $3); codeGenerator(OP_DIV, 0);}
-    | exp EXP exp { $$ = temp_count++; printf("t%d = t%d ^ t%d\n", $$, $1, $3); codeGenerator(OP_EXP, 0);}
-    | exp EQ exp { $$ = temp_count++; printf("t%d = (t%d == t%d)\n", $$, $1, $3); codeGenerator(OP_EQ, 0);}
-    | exp LT exp { $$ = temp_count++; printf("t%d = (t%d < t%d)\n", $$, $1, $3); codeGenerator(OP_LT, 0);}
-    | exp GT exp { $$ = temp_count++; printf("t%d = (t%d > t%d)\n", $$, $1, $3); codeGenerator(OP_GT, 0);}
+    | exp ADD exp { 
+        $$ = temp_count++; 
+        printf("t%d = t%d + t%d\n", $$, $1, $3); 
+        codeGenerator(OP_ADD, 0);
+    }
+    | exp SUB exp { 
+        $$ = temp_count++; 
+        printf("t%d = t%d - t%d\n", $$, $1, $3); 
+        codeGenerator(OP_SUB, 0);}
+    | exp MUL exp { 
+        $$ = temp_count++; 
+        printf("t%d = t%d * t%d\n", $$, $1, $3); 
+        codeGenerator(OP_MUL, 0);}
+    | exp DIV exp { 
+        $$ = temp_count++; 
+        printf("t%d = t%d / t%d\n", $$, $1, $3); 
+        codeGenerator(OP_DIV, 0);}
+    | exp EXP exp { 
+        $$ = temp_count++; 
+        printf("t%d = t%d ^ t%d\n", $$, $1, $3); 
+        codeGenerator(OP_EXP, 0);}
+    | exp EQ exp { 
+        $$ = temp_count++; 
+        printf("t%d = (t%d == t%d)\n", $$, $1, $3); 
+        codeGenerator(OP_EQ, 0);}
+    | exp LT exp { 
+        $$ = temp_count++; 
+        printf("t%d = (t%d < t%d)\n", $$, $1, $3); 
+        codeGenerator(OP_LT, 0);}
+    | exp GT exp { 
+        $$ = temp_count++; 
+        printf("t%d = (t%d > t%d)\n", $$, $1, $3); 
+        codeGenerator(OP_GT, 0);}
     ;
 
 %%
@@ -241,7 +286,7 @@ int main(int argc, char **argv) {
 	create_context();
     yyparse();
 	check_unused_variables();
-    
+
     printf("Código gerado até agora (code_offset = %d):\n", code_offset);
     if (global_context.errors  == 0){
         print_code();

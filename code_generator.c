@@ -13,6 +13,7 @@ struct instruction ir;  // Instruction Struct
 int ar = 0;             // Accumulator
 int top = 0;            // Last
 
+// Stack Machine by Aaby
 void fetch_execute_cycle() { 
    do {
       ir = code[pc++];
@@ -72,7 +73,6 @@ void fetch_execute_cycle() {
             top--;
             break;
          default : 
-            printf( "%sInternal Error: Memory Dump\n" );
             break;
       }
    } while (ir.opcode != OP_HALT);
@@ -91,7 +91,7 @@ int reserve_loc() {
 
 void codeGenerator(enum code_ops operation, int arg){
    if (code_offset >= 999) {
-      fprintf(stderr, "Error: Code array out of bounds\n");
+      fprintf(stderr, "Erro: Code array out of bounds\n");
       exit(1);
    }
    code[code_offset].opcode = operation;
@@ -103,11 +103,13 @@ void back_patch( int addr, enum code_ops operation, int arg ) {
    code[addr].arg = arg;
 }
 
+// Impressão do código intermediário 
+// N: Opcode argumento
 void print_code() {
    int i = 0;
-   printf("CÓDIGO OBJETO\n");
+   printf("CÓDIGO INTERMEDIÁRIO\n");
    while (i < code_offset) {
-      printf("%3d: %-10s%4d\n", i , op_name[code[i].opcode], code[i].arg );
+      printf("%d: %-10s%4d\n", i , op_name[code[i].opcode], code[i].arg );
       i++;
    }
 }
