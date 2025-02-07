@@ -90,9 +90,6 @@ int reserve_loc() {
 }
 
 void codeGenerator(enum code_ops operation, int arg){
-   if (arg == NULL) {
-      exit(1);
-   }
    if (code_offset >= 999) {
       fprintf(stderr, "Error: Code array out of bounds\n");
       exit(1);
@@ -105,10 +102,12 @@ void back_patch( int addr, enum code_ops operation, int arg ) {
    code[addr].opcode = operation;
    code[addr].arg = arg;
 }
+
 void print_code() {
    int i = 0;
+   printf("CÓDIGO OBJETO\n");
    while (i < code_offset) {
-      printf("%3d: %-10s%4d\n",i,op_name[(int) code[i].opcode], code[i].arg );
+      printf("%3d: %-10s%4d\n", i , op_name[code[i].opcode], code[i].arg );
       i++;
    }
 }

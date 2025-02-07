@@ -13,6 +13,7 @@ extern char* yytext; // Texto atual do analisador léxico
 void yyerror(const char *s);
 void check_identifier_context(enum code_ops operation, char *id);
 int temp_count = 0;
+int erros;
 
 typedef struct Id_Node Id_Node;
 struct Id_Node 
@@ -238,16 +239,17 @@ int main(int argc, char **argv) {
     }
 
 	create_context();
-	
     yyparse();
-
+	check_unused_variables();
+    
+    printf("Código gerado até agora (code_offset = %d):\n", code_offset);
+    if (global_context.errors  == 0){
+        print_code();
+        fetch_execute_cycle();
+    }
     if (file != NULL) {
         fclose(file);
     }
-
-	check_unused_variables();
-    fetch_execute_cycle();
-
 	if (global_context.warnings > 0) {
 		fprintf(stdout, "Compilacao terminada com %d warnings\n", global_context.warnings);
 	}
