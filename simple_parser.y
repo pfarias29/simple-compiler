@@ -291,6 +291,7 @@ int main(int argc, char **argv) {
     if (global_context.errors  == 0){
         print_code();
         fetch_execute_cycle();
+        fetch_execute_cycleTM();
     }
     if (file != NULL) {
         fclose(file);
