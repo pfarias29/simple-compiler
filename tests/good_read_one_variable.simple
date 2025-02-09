@@ -1,0 +1,6 @@
+let
+   integer n.
+in
+    read n;
+    write n;
+end

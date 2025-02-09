@@ -182,14 +182,16 @@ command: SKIP
         $1->label_jmp_false = reserve_loc();
       } THEN command_sequence {
         $1->label_goto = reserve_loc();
-      } ELSE {} FI ';' { 
+      } ELSE {
+        back_patch($1->label_jmp_false, OP_JMP_FALSE, gen_label());
+      } command_sequence FI { 
         printf("IF t%d ... THEN ... FI\n", $2); 
         back_patch($1->label_goto, OP_GOTO, 0);
     }
     | WHILE exp DO command_sequence END ';' { 
         printf("WHILE t%d ... DO ...\n", $2); 
     }
-    | READ IDENTIFIER ';' { 
+    | READ IDENTIFIER { 
         printf("READ %s\n", $2); 
         check_identifier_context(OP_READ_INT, $2);
     }
@@ -260,6 +262,9 @@ void yyerror(const char *s) {
 int main(int argc, char **argv) {
     int opt;
     FILE *file = NULL;
+    char * tmfile;
+    char filename[120];
+    strcpy(filename,argv[2]);
 
     // Processa as opções de linha de comando
     while ((opt = getopt(argc, argv, "f:")) != -1) {
@@ -290,8 +295,13 @@ int main(int argc, char **argv) {
     printf("Código gerado até agora (code_offset = %d):\n", code_offset);
     if (global_context.errors  == 0){
         print_code();
-        fetch_execute_cycle();
-        fetch_execute_cycleTM();
+        //fetch_execute_cycle();
+        printf("CÓDIGO EM ASM TM\n");
+        int extLength = strcspn(filename,".");
+        tmfile = (char *) calloc(extLength+7, sizeof(char));
+        strncpy(tmfile,filename,extLength);
+        strcat(tmfile,".tm");
+        fetch_execute_cycleTM(tmfile);
     }
     if (file != NULL) {
         fclose(file);

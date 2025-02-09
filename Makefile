@@ -8,6 +8,7 @@ simple: simple_parser.y simple_lex.l
 all: simple_compiler
 
 clean:
+	rm -rf tmcode_generator.*
 	rm -rf code_generator.*
 	rm -rf simple_parser.tab.*
 	rm -rf lex.yy.c
