@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include "code_generator.h"
+#include "int_code_generator.h"
 
 extern FILE *yyin;
 extern int yylex(void);
@@ -88,7 +89,7 @@ void check_identifier_context(enum code_ops operation, char *id)
 	}
 	else {
 		node->used = true;
-        codeGenerator(operation, data_location());
+        intermediateCodeGenerator(operation, data_location());
 	}
 }
 
@@ -153,8 +154,8 @@ struct labels * labelSpaceAllocation() {
 /* Regras da gramática */
 
 program:
-    LET declarations IN {codeGenerator(OP_DATA, data_location()-1);} command_sequence END {
-        codeGenerator(OP_HALT, 0); 
+    LET declarations IN {intermediateCodeGenerator(OP_DATA, data_location()-1);} command_sequence END {
+        intermediateCodeGenerator(OP_HALT, 0); 
         YYACCEPT;
     }
 ;
@@ -180,6 +181,7 @@ command: SKIP
     | IF exp {
         $1 = (struct labels *) labelSpaceAllocation(); 
         $1->label_jmp_false = reserve_loc();
+        printf("Label_jmp_false: %d\n", $1->label_jmp_false);
       } THEN command_sequence {
         $1->label_goto = reserve_loc();
       } ELSE {
@@ -197,7 +199,7 @@ command: SKIP
     }
     | WRITE exp { 
         printf("WRITE t%d\n", $2); 
-        codeGenerator(OP_WRITE_INT, 0);
+        intermediateCodeGenerator(OP_WRITE_INT, 0);
     }
     ;
 
@@ -205,7 +207,7 @@ exp:
       NUMBER { 
         $$ = temp_count++; 
         printf("t%d = %d\n", $$, $1);  
-        codeGenerator(OP_LD_INT, $1);
+        intermediateCodeGenerator(OP_LD_INT, $1);
     }
     | IDENTIFIER { 
         $$ = temp_count++; 
@@ -220,36 +222,36 @@ exp:
     | exp ADD exp { 
         $$ = temp_count++; 
         printf("t%d = t%d + t%d\n", $$, $1, $3); 
-        codeGenerator(OP_ADD, 0);
+        intermediateCodeGenerator(OP_ADD, 0);
     }
     | exp SUB exp { 
         $$ = temp_count++; 
         printf("t%d = t%d - t%d\n", $$, $1, $3); 
-        codeGenerator(OP_SUB, 0);}
+        intermediateCodeGenerator(OP_SUB, 0);}
     | exp MUL exp { 
         $$ = temp_count++; 
         printf("t%d = t%d * t%d\n", $$, $1, $3); 
-        codeGenerator(OP_MUL, 0);}
+        intermediateCodeGenerator(OP_MUL, 0);}
     | exp DIV exp { 
         $$ = temp_count++; 
         printf("t%d = t%d / t%d\n", $$, $1, $3); 
-        codeGenerator(OP_DIV, 0);}
+        intermediateCodeGenerator(OP_DIV, 0);}
     | exp EXP exp { 
         $$ = temp_count++; 
         printf("t%d = t%d ^ t%d\n", $$, $1, $3); 
-        codeGenerator(OP_EXP, 0);}
+        intermediateCodeGenerator(OP_EXP, 0);}
     | exp EQ exp { 
         $$ = temp_count++; 
         printf("t%d = (t%d == t%d)\n", $$, $1, $3); 
-        codeGenerator(OP_EQ, 0);}
+        intermediateCodeGenerator(OP_EQ, 0);}
     | exp LT exp { 
         $$ = temp_count++; 
         printf("t%d = (t%d < t%d)\n", $$, $1, $3); 
-        codeGenerator(OP_LT, 0);}
+        intermediateCodeGenerator(OP_LT, 0);}
     | exp GT exp { 
         $$ = temp_count++; 
         printf("t%d = (t%d > t%d)\n", $$, $1, $3); 
-        codeGenerator(OP_GT, 0);}
+        intermediateCodeGenerator(OP_GT, 0);}
     ;
 
 %%
@@ -301,7 +303,7 @@ int main(int argc, char **argv) {
         tmfile = (char *) calloc(extLength+7, sizeof(char));
         strncpy(tmfile,filename,extLength);
         strcat(tmfile,".tm");
-        fetch_execute_cycleTM(tmfile);
+        generateCode(tmfile);
     }
     if (file != NULL) {
         fclose(file);

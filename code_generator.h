@@ -1,33 +1,17 @@
-#include <stdio.h>
+#define MAX_INSTRUCTIONS 999
 
-enum code_ops { OP_HALT, OP_STORE, OP_JMP_FALSE, OP_GOTO, OP_DATA, OP_LD_INT, OP_LD_VAR, OP_READ_INT, OP_WRITE_INT, OP_LT, OP_EQ, OP_GT, OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_EXP };
+extern int offsetTM;
+extern int gp;
+extern int mp;
+extern int acc1;
 
-extern char *op_name[];
-
-struct instruction {
-    enum code_ops opcode;
-    int arg1;
-    int arg2;
-    int arg3;
+struct instructionTM {
+    char opcode[10];
+    int targetRegister;
+    int fstRegister;
+    int sndRegister;
 };
 
-extern struct instruction code[999];
-extern int stack[999];
-extern int pc;
-extern struct instruction ir;
-extern int acc;
-extern int top;
+extern struct instructionTM TMcode[MAX_INSTRUCTIONS];
 
-void fetch_execute_cycle();
-
-extern int data_offset;
-int data_location();
-
-extern int code_offset;
-extern int code_offset_TM;
-int gen_label();
-int reserve_loc();
-
-void codeGenerator(enum code_ops opcode, int arg);
-void back_patch(int addr, enum code_ops operation, int arg);
-void print_code();
+void generateCode(char* tmfile);

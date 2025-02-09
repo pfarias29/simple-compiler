@@ -2,7 +2,7 @@ let
    integer n.
 in
     read n;
-    if 0 = n then
+    if 1 = n then
         write n;
     else 
         skip;
