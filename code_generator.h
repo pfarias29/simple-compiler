@@ -15,3 +15,4 @@ struct instructionTM {
 extern struct instructionTM TMcode[MAX_INSTRUCTIONS];
 
 void generateCode(char* tmfile);
+void generateCodeTerminal();

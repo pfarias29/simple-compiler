@@ -264,6 +264,7 @@ void yyerror(const char *s) {
 int main(int argc, char **argv) {
     int opt;
     FILE *file = NULL;
+    int isItAFile = 0;
     char * tmfile;
     char filename[120];
     strcpy(filename,argv[2]);
@@ -272,6 +273,7 @@ int main(int argc, char **argv) {
     while ((opt = getopt(argc, argv, "f:")) != -1) {
         switch (opt) {
             case 'f':
+                isItAFile = 1;
                 file = fopen(optarg, "r");
                 if (!file) {
                     perror(optarg);
@@ -298,12 +300,17 @@ int main(int argc, char **argv) {
     if (global_context.errors  == 0){
         print_code();
         //fetch_execute_cycle();
-        printf("CÓDIGO EM ASM TM\n");
-        int extLength = strcspn(filename,".");
-        tmfile = (char *) calloc(extLength+7, sizeof(char));
-        strncpy(tmfile,filename,extLength);
-        strcat(tmfile,".tm");
-        generateCode(tmfile);
+        if (isItAFile == 1){
+            int extLength = strcspn(filename,".");
+            tmfile = (char *) calloc(extLength+7, sizeof(char));
+            strncpy(tmfile,filename,extLength);
+            strcat(tmfile,".tm");
+            printf("CÓDIGO EM ASM TM EM ARQUIVO %s\n", tmfile);
+            generateCode(tmfile);
+        } else {
+            printf("CÓDIGO EM ASM TM:\n");
+            generateCodeTerminal();
+        }
     }
     if (file != NULL) {
         fclose(file);
