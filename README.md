@@ -62,7 +62,7 @@ gcc lex.yy.c -o arquivo-saida -lm
 make
 ```
 
-Rodar o analisador sintático
+Rodar o compilador:
 - Opção 1: Interagindo no terminal
 ```sh
 ./simple
@@ -74,3 +74,6 @@ Rodar o analisador sintático
 ./simple -f <nome-do-arquivo:simple_program>
 ```
 
+## Como funciona o 'compilador'?
+1. Após as análises, vai gerar p código intermediário conforme o Aaby.
+2. Após gerar o código intermediário vai gerar o código em assembly que roda no Tiny Machine Simulator.

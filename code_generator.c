@@ -146,7 +146,7 @@ void generateCode(char* tmfile) {
                TMcode[offsetTM].sndRegister = pc;
                fprintf(file,"%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                break;
-            case OP_DATA :
+            case OP_DATA : // Não foi implementado
                top = top + inst_struct.arg1; break;
             case OP_LD_INT : 
                stack[++top] = inst_struct.arg1;
@@ -174,7 +174,7 @@ void generateCode(char* tmfile) {
                TMcode[offsetTM].sndRegister = gp;
                fprintf(file,"%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                break;
-            case OP_LT : 
+            case OP_LT : // Não foi implementado
                jump_back_to = pc;
                if ( stack[top-1] < stack[top] ) { stack[--top] = 1; }
                else { stack[--top] = 0;}
@@ -191,7 +191,7 @@ void generateCode(char* tmfile) {
                }
                else { stack[--top] = 0;}
                break; 
-            case OP_GT : 
+            case OP_GT : // Não foi implementado
                jump_back_to = pc;
                if ( stack[top-1] > stack[top] ) { stack[--top] = 1; }
                else { stack[--top] = 0;}
