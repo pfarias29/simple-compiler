@@ -38,18 +38,18 @@ void generateCode(char* tmfile) {
                 fprintf(file,"%3d:  %5s  %d,%d,%d \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                 break;
             case OP_READ_INT: 
-                stack[acc + inst_struct.arg1] = 0;
-                strcpy(TMcode[offsetTM].opcode, "IN");
-                TMcode[offsetTM].targetRegister = acc;
-                TMcode[offsetTM].fstRegister = 0;
-                TMcode[offsetTM].sndRegister = 0;
-                fprintf(file,"%3d:  %5s  %d,%d,%d \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
-                strcpy(TMcode[offsetTM].opcode, "ST");
-                TMcode[offsetTM].targetRegister = acc;
-                TMcode[offsetTM].fstRegister = acc;
-                TMcode[offsetTM].sndRegister = gp;
-                fprintf(file,"%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
-                break;
+               stack[acc + inst_struct.arg1] = 0;
+               strcpy(TMcode[offsetTM].opcode, "IN");
+               TMcode[offsetTM].targetRegister = acc;
+               TMcode[offsetTM].fstRegister = 0;
+               TMcode[offsetTM].sndRegister = 0;
+               fprintf(file,"%3d:  %5s  %d,%d,%d \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+               strcpy(TMcode[offsetTM].opcode, "ST");
+               TMcode[offsetTM].targetRegister = acc;
+               TMcode[offsetTM].fstRegister = acc;
+               TMcode[offsetTM].sndRegister = gp;
+               fprintf(file,"%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+               break;
             case OP_WRITE_INT : 
                 strcpy(TMcode[offsetTM].opcode, "OUT");
                 TMcode[offsetTM].targetRegister = acc;
@@ -127,19 +127,18 @@ void generateCode(char* tmfile) {
                TMcode[offsetTM].fstRegister = 1;
                TMcode[offsetTM].sndRegister = acc;
                fprintf(file,"%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+               strcpy(TMcode[offsetTM].opcode, "JEQ");
+               TMcode[offsetTM].targetRegister = acc;
+               TMcode[offsetTM].fstRegister = 2;
+               TMcode[offsetTM].sndRegister = pctemp;
+               fprintf(file, "%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                if ( stack[top--] == 0 ){
                   pc = inst_struct.arg1;
                } else {
                   pc = pctemp - 1;
                }
-               
                break;
             case OP_GOTO : // Uncoditional Jump
-               strcpy(TMcode[offsetTM].opcode, "JEQ");
-               TMcode[offsetTM].targetRegister = acc;
-               TMcode[offsetTM].fstRegister = jump_back_to;
-               TMcode[offsetTM].sndRegister = pc;
-               fprintf(file,"%3d:  %5s  %d,%d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                strcpy(TMcode[offsetTM].opcode, "LDA");
                TMcode[offsetTM].targetRegister = pc;
                TMcode[offsetTM].fstRegister = 0;
@@ -171,7 +170,7 @@ void generateCode(char* tmfile) {
                strcpy(TMcode[offsetTM].opcode, "LD");
                TMcode[offsetTM].targetRegister = acc;
                TMcode[offsetTM].fstRegister = acc;
-               TMcode[offsetTM].sndRegister = gp;
+               TMcode[offsetTM].sndRegister = mp;
                fprintf(file,"%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                break;
             case OP_LT : // Não foi implementado
@@ -229,18 +228,18 @@ void generateCode(char* tmfile) {
                 printf("%3d:  %5s  %d,%d,%d \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                 break;
             case OP_READ_INT: 
-                stack[acc + inst_struct.arg1] = 0;
-                strcpy(TMcode[offsetTM].opcode, "IN");
-                TMcode[offsetTM].targetRegister = acc;
-                TMcode[offsetTM].fstRegister = 0;
-                TMcode[offsetTM].sndRegister = 0;
-                printf("%3d:  %5s  %d,%d,%d \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
-                strcpy(TMcode[offsetTM].opcode, "ST");
-                TMcode[offsetTM].targetRegister = acc;
-                TMcode[offsetTM].fstRegister = acc;
-                TMcode[offsetTM].sndRegister = gp;
-                printf("%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
-                break;
+               stack[acc + inst_struct.arg1] = 0;
+               strcpy(TMcode[offsetTM].opcode, "IN");
+               TMcode[offsetTM].targetRegister = acc;
+               TMcode[offsetTM].fstRegister = 0;
+               TMcode[offsetTM].sndRegister = 0;
+               printf("%3d:  %5s  %d,%d,%d \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+               strcpy(TMcode[offsetTM].opcode, "ST");
+               TMcode[offsetTM].targetRegister = acc;
+               TMcode[offsetTM].fstRegister = acc;
+               TMcode[offsetTM].sndRegister = gp;
+               printf("%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+               break;
             case OP_WRITE_INT : 
                 strcpy(TMcode[offsetTM].opcode, "OUT");
                 TMcode[offsetTM].targetRegister = acc;
@@ -318,19 +317,18 @@ void generateCode(char* tmfile) {
                TMcode[offsetTM].fstRegister = 1;
                TMcode[offsetTM].sndRegister = acc;
                printf("%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+               strcpy(TMcode[offsetTM].opcode, "JEQ");
+               TMcode[offsetTM].targetRegister = acc;
+               TMcode[offsetTM].fstRegister = 2;
+               TMcode[offsetTM].sndRegister = pc;
+               printf("%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                if ( stack[top--] == 0 ){
                   pc = inst_struct.arg1;
                } else {
                   pc = pctemp - 1;
                }
-               
                break;
             case OP_GOTO : // Uncoditional Jump
-               strcpy(TMcode[offsetTM].opcode, "JEQ");
-               TMcode[offsetTM].targetRegister = acc;
-               TMcode[offsetTM].fstRegister = jump_back_to;
-               TMcode[offsetTM].sndRegister = pc;
-               printf("%3d:  %5s  %d,%d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                strcpy(TMcode[offsetTM].opcode, "LDA");
                TMcode[offsetTM].targetRegister = pc;
                TMcode[offsetTM].fstRegister = 0;
@@ -362,7 +360,7 @@ void generateCode(char* tmfile) {
                strcpy(TMcode[offsetTM].opcode, "LD");
                TMcode[offsetTM].targetRegister = acc;
                TMcode[offsetTM].fstRegister = acc;
-               TMcode[offsetTM].sndRegister = gp;
+               TMcode[offsetTM].sndRegister = mp;
                printf("%3d:  %5s  %d,%7d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
                break;
             case OP_LT : 
