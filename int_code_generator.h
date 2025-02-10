@@ -25,7 +25,6 @@ extern int data_offset;
 extern int code_offset;
 
 // Protótipos das funções
-void intermediateCodeGenerator();
 int data_location();
 int gen_label();
 int reserve_loc();
