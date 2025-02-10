@@ -21,7 +21,7 @@ void generateCode(char* tmfile) {
     TMcode[offsetTM].targetRegister = mp;
     TMcode[offsetTM].fstRegister = 0;
     TMcode[offsetTM].sndRegister = 0;
-    fprintf(file,"%3d:  %5s  %d,%d(%d) \n",offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+    fprintf(file, offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
     strcpy(TMcode[offsetTM].opcode, "ST");
     TMcode[offsetTM].targetRegister = 0;
     TMcode[offsetTM].fstRegister = 0;
@@ -200,6 +200,11 @@ void generateCode(char* tmfile) {
       }
    } while (inst_struct.opcode != OP_HALT);
    fclose(file);
+   int i = 0 ;
+   while (i < offsetTM){
+      printf("%3d:  %5s  %d,%d,%d \n",i,TMcode[i].opcode, TMcode[i].targetRegister, TMcode[i].fstRegister, TMcode[i].sndRegister);
+      i++;
+   }
  }
 
  void generateCodeTerminal() { 

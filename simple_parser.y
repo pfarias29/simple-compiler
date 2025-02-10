@@ -298,7 +298,7 @@ int main(int argc, char **argv) {
 
     printf("Código gerado até agora (code_offset = %d):\n", code_offset);
     if (global_context.errors  == 0){
-        print_code();
+        print_intermediate_code();
         //fetch_execute_cycle();
         if (isItAFile == 1){
             int extLength = strcspn(filename,".");
