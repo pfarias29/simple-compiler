@@ -175,30 +175,24 @@ command_sequence:
 
 command: SKIP
     | IDENTIFIER ASSIGN exp ';' { 
-        printf("ASSIGN %s t%d\n", $1, $3); 
         check_identifier_context(OP_STORE,$1);
     }
     | IF exp {
         $1 = (struct labels *) labelSpaceAllocation(); 
         $1->label_jmp_false = reserve_loc();
-        printf("Label_jmp_false: %d\n", $1->label_jmp_false);
       } THEN command_sequence {
         $1->label_goto = reserve_loc();
       } ELSE {
         back_patch($1->label_jmp_false, OP_JMP_FALSE, gen_label());
       } command_sequence FI { 
-        printf("IF t%d ... THEN ... FI\n", $2); 
         back_patch($1->label_goto, OP_GOTO, 0);
     }
     | WHILE exp DO command_sequence END ';' { 
-        printf("WHILE t%d ... DO ...\n", $2); 
     }
     | READ IDENTIFIER { 
-        printf("READ %s\n", $2); 
         check_identifier_context(OP_READ_INT, $2);
     }
     | WRITE exp { 
-        printf("WRITE t%d\n", $2); 
         intermediateCodeGenerator(OP_WRITE_INT, 0);
     }
     ;
@@ -206,12 +200,10 @@ command: SKIP
 exp:
       NUMBER { 
         $$ = temp_count++; 
-        printf("t%d = %d\n", $$, $1);  
         intermediateCodeGenerator(OP_LD_INT, $1);
     }
     | IDENTIFIER { 
         $$ = temp_count++; 
-        printf("t%d = %s\n", $$, $1); 
         if (id_node_find(global_context.id_table, $1) == NULL) {
             fprintf(stderr, "ERRO: Variável `%s` não foi declarada corretamente\n", $1);
             exit(EXIT_FAILURE);
@@ -220,37 +212,29 @@ exp:
     }
     | '(' exp ')' { $$ = $2; }
     | exp ADD exp { 
-        $$ = temp_count++; 
-        printf("t%d = t%d + t%d\n", $$, $1, $3); 
+        $$ = temp_count++;  
         intermediateCodeGenerator(OP_ADD, 0);
     }
     | exp SUB exp { 
         $$ = temp_count++; 
-        printf("t%d = t%d - t%d\n", $$, $1, $3); 
         intermediateCodeGenerator(OP_SUB, 0);}
     | exp MUL exp { 
         $$ = temp_count++; 
-        printf("t%d = t%d * t%d\n", $$, $1, $3); 
         intermediateCodeGenerator(OP_MUL, 0);}
     | exp DIV exp { 
         $$ = temp_count++; 
-        printf("t%d = t%d / t%d\n", $$, $1, $3); 
         intermediateCodeGenerator(OP_DIV, 0);}
     | exp EXP exp { 
         $$ = temp_count++; 
-        printf("t%d = t%d ^ t%d\n", $$, $1, $3); 
         intermediateCodeGenerator(OP_EXP, 0);}
     | exp EQ exp { 
         $$ = temp_count++; 
-        printf("t%d = (t%d == t%d)\n", $$, $1, $3); 
         intermediateCodeGenerator(OP_EQ, 0);}
     | exp LT exp { 
-        $$ = temp_count++; 
-        printf("t%d = (t%d < t%d)\n", $$, $1, $3); 
+        $$ = temp_count++;  
         intermediateCodeGenerator(OP_LT, 0);}
     | exp GT exp { 
-        $$ = temp_count++; 
-        printf("t%d = (t%d > t%d)\n", $$, $1, $3); 
+        $$ = temp_count++;  
         intermediateCodeGenerator(OP_GT, 0);}
     ;
 
@@ -296,7 +280,7 @@ int main(int argc, char **argv) {
     yyparse();
 	check_unused_variables();
 
-    printf("Código gerado até agora (code_offset = %d):\n", code_offset);
+    printf("(code_offset = %d)\n", code_offset);
     if (global_context.errors  == 0){
         print_intermediate_code();
         //fetch_execute_cycle();
