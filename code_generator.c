@@ -46,7 +46,6 @@ void generateCode(char* tmfile) {
                filePrintROCode(file,"HALT", 0, 0, 0);
                break;
             case OP_READ_INT: 
-               stack[acc + inst_struct.arg1] = 0;
                filePrintROCode(file,"IN", acc, 0, 0);
                filePrintRMCode(file,"ST", acc, acc, gp);
                break;
@@ -54,38 +53,25 @@ void generateCode(char* tmfile) {
                filePrintROCode(file,"OUT", acc, 0, 0);
                break;
             case OP_ADD : 
-               temp = stack[top-1];
-               stack[top-1] = stack[top-1] + stack[top];
                filePrintRMCode(file, "LD", acc1, 0, mp);
                filePrintROCode(file,"ADD",  acc, acc1, acc);
                break;
             case OP_SUB : 
-               temp = stack[top-1];
-               stack[top-1] = stack[top-1] - stack[top];
                filePrintRMCode(file, "LD", acc1, 0, mp);
                filePrintROCode(file,"SUB",  acc, acc1, acc);
                top--;
                break;
             case OP_MUL: 
-               temp = stack[top-1];
-               stack[top-1] = stack[top-1] * stack[top];
                filePrintRMCode(file, "LD", acc1, 0, mp);
                filePrintROCode(file,"MUL",  acc, acc1, acc);
-               top--;
                break;
             case OP_DIV : 
-               temp = stack[top-1];
-               stack[top-1] = stack[top-1] / stack[top];
                filePrintRMCode(file, "LD", acc1, 0, mp);
                filePrintROCode(file,"DIV",  acc, acc1, acc);
-               top--;
                break;
             case OP_EXP : // Não vou implementar esse!!!
-                stack[top-1] = pow(stack[top-1], stack[top]);
-                top--;
                 break;
             case OP_STORE : 
-               stack[inst_struct.arg1] = stack[top--]; 
                filePrintRMCode(file,"ST", acc, 0, gp);
                break;
             case OP_JMP_FALSE : 
@@ -95,9 +81,7 @@ void generateCode(char* tmfile) {
                filePrintRMCode(file,"LDA", pctemp, 1, pctemp);
                filePrintRMCode(file,"LDC", acc, 1, acc);
                filePrintRMCode(file,"JEQ", acc, 2, pctemp);
-               if ( stack[top--] == 0 ){
-                  jump_back_to = pctemp;
-               }
+               jump_back_to = pctemp;
                break;
             case OP_GOTO : // Uncoditional Jump
                filePrintRMCode(file,"LDA", jump_back_to, 0, jump_back_to);
@@ -105,32 +89,22 @@ void generateCode(char* tmfile) {
             case OP_DATA : // Não foi implementado
                top = top + inst_struct.arg1; break;
             case OP_LD_INT : 
-               stack[++top] = inst_struct.arg1;
                filePrintRMCode(file,"LDC", acc, inst_struct.arg1, 0);
                filePrintRMCode(file, "ST", acc, acc, mp);
                break;
             case OP_LD_VAR : 
-               stack[++top] = stack[acc + inst_struct.arg1]; 
                filePrintRMCode(file,"LD", acc, acc, gp);
                break;
             case OP_LT : // Não foi implementado
                jump_back_to = pc;
-               if ( stack[top-1] < stack[top] ) { stack[--top] = 1; }
-               else { stack[--top] = 0;}
                break; 
             case OP_EQ : 
                jump_back_to = pc;
                filePrintRMCode(file, "LD", acc1, acc, mp);
                filePrintROCode(file,"SUB", acc, acc1, acc);
-               if ( stack[top-1] == stack[top] ) { 
-                  stack[--top] = 1; 
-               }
-               else { stack[--top] = 0;}
                break; 
             case OP_GT : // Não foi implementado
                jump_back_to = pc;
-               if ( stack[top-1] > stack[top] ) { stack[--top] = 1; }
-               else { stack[--top] = 0;}
                break; 
             default : 
                break;
@@ -169,8 +143,6 @@ void generateCodeTerminal() {
    acc1 = 1;                     // Accumulator 2
    int jump_back_to = 0;
    int temp = 0;
-   termPrintRMCode("LD", mp, 0, 0);
-   termPrintRMCode("ST", 0, 0, 0);
    do { 
       inst_struct = code[pc++];
       switch (inst_struct.opcode) {
@@ -178,7 +150,6 @@ void generateCodeTerminal() {
                termPrintROCode("HALT", 0, 0, 0);
                break;
             case OP_READ_INT: 
-               stack[acc + inst_struct.arg1] = 0;
                termPrintROCode("IN", acc, 0, 0);
                termPrintRMCode("ST", acc, acc, gp);
                break;
@@ -186,38 +157,24 @@ void generateCodeTerminal() {
                termPrintROCode("OUT", acc, 0, 0);
                break;
             case OP_ADD : 
-               stack[top-1] = stack[top-1] + stack[top];
                termPrintRMCode("LD", acc1, 0, mp);
                termPrintROCode("ADD", acc, acc1, acc);
-               top--;
                break;
             case OP_SUB : 
-               temp = stack[top-1];
-               stack[top-1] = stack[top-1] - stack[top];
                termPrintRMCode("LD", acc1, 0, mp);
                termPrintROCode("SUB", acc, acc1, acc);
-               top--;
                break;
             case OP_MUL: 
-               int temp = stack[top-1];
-               stack[top-1] = stack[top-1] * stack[top];
                termPrintRMCode("LD", acc1, 0, mp);
                termPrintROCode("MUL", acc, acc1, acc);
-               top--;
                break;
             case OP_DIV : 
-               temp = stack[top-1];
-               stack[top-1] = stack[top-1] / stack[top];
                termPrintRMCode("LD", acc1, 0, mp);
                termPrintROCode("DIV", acc, acc1, acc);
-               top--;
                break;
             case OP_EXP : // Não vou implementar esse!!!
-                stack[top-1] = pow(stack[top-1], stack[top]);
-                top--;
                 break;
             case OP_STORE : 
-               stack[inst_struct.arg1] = stack[top--]; 
                termPrintRMCode("ST", acc, 0, gp);
                break;
             case OP_JMP_FALSE : 
@@ -227,43 +184,33 @@ void generateCodeTerminal() {
                termPrintRMCode("LDA", pctemp, 1, pctemp);
                termPrintRMCode("LDC", acc, 1, acc);
                termPrintRMCode("JEQ", acc, 2, pctemp);
-               if ( stack[top--] == 0 ){
-                  jump_back_to = inst_struct.arg1;
-               }
+               jump_back_to = inst_struct.arg1;
                break;
             case OP_GOTO : // Uncoditional Jump
                termPrintRMCode("LDA", jump_back_to, 0, jump_back_to);
                break;
             case OP_DATA :
-               top = top + inst_struct.arg1; break;
+               termPrintRMCode("LD", mp, 0, 0);
+               termPrintRMCode("ST", 0, 0, 0);   
+               break;
             case OP_LD_INT : 
-               stack[++top] = inst_struct.arg1;
                termPrintRMCode("LDC", acc, inst_struct.arg1, 0);
                termPrintRMCode("ST", acc, acc, mp);
                break;
             case OP_LD_VAR : 
-               stack[++top] = stack[acc + inst_struct.arg1]; 
                termPrintRMCode("LD", acc, acc, gp);
                termPrintRMCode("ST", acc, acc, mp);
                break;
             case OP_LT : 
                jump_back_to = pc;
-               if ( stack[top-1] < stack[top] ) { stack[--top] = 1; }
-               else { stack[--top] = 0;}
                break; 
             case OP_EQ : 
                jump_back_to = pc;
                termPrintRMCode("LD", acc1, acc, mp);
                termPrintRMCode("SUB", acc, acc1, acc);
-               if ( stack[top-1] == stack[top] ) { 
-                  stack[--top] = 1; 
-               }
-               else { stack[--top] = 0;}
                break; 
             case OP_GT : 
                jump_back_to = pc;
-               if ( stack[top-1] > stack[top] ) { stack[--top] = 1; }
-               else { stack[--top] = 0;}
                break; 
             default : 
                break;
