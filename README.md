@@ -74,6 +74,30 @@ Rodar o compilador:
 ./simple -f <nome-do-arquivo:simple_program>
 ```
 
-## Como funciona o 'compilador'?
-1. Após as análises, vai gerar p código intermediário conforme o Aaby.
-2. Após gerar o código intermediário vai gerar o código em assembly que roda no Tiny Machine Simulator.
+## Como funciona a conexão com a Tiny Machine?
+1. Após as análises, vai gerar p código intermediário conforme o Aaby. Arquivos "int_code_generator.*".
+2. Após gerar o código intermediário vai gerar o código em assembly que roda no Tiny Machine Simulator. Pelos arquivos "code_generator.*".
+3. Para checar o código em simple com o código em Tiny (Do livro do Louden): 
+    - Compile um código em Simple usando nosso compilador;
+    - Compile o código equivalente em Tiny usando a "loucomp";
+    - Cheque os códigos utilizando a Tiny Machine Visual Simulator.
+
+## Instruções no assembly da Tiny
+### Instruções RM
+opcode target_register,offset(base_register)
+
+Exemplos: 
+
+    LDC  0,0(0) 
+
+    LD  1,0(6) 
+
+### Instruções RO
+opcode target_register, 1st_source_register, 2nd_source_register
+
+Exemplos: 
+
+    MUL  0,1,0 
+
+    HALT 0,0,0
+

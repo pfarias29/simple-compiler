@@ -10,6 +10,7 @@ int mp = 6;                        // Memory Pointer
 int acc1 = 1;
 struct instructionTM TMcode[999];
 
+// Printa Instruções RM no arquivo .tm
 void filePrintRMCode(FILE *file, char opcode[10], int targetRegister, int fstRegister, int sndRegister) {
    strcpy(TMcode[offsetTM].opcode, opcode);
    TMcode[offsetTM].targetRegister = targetRegister;
@@ -18,6 +19,7 @@ void filePrintRMCode(FILE *file, char opcode[10], int targetRegister, int fstReg
    fprintf(file, "%3d:  %5s  %d,%7d(%d) \n", offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
 }
 
+// Printa Instruções RO no arquivo .tm
 void filePrintROCode(FILE *file, char opcode[10], int targetRegister, int fstRegister, int sndRegister) {
    strcpy(TMcode[offsetTM].opcode, opcode);
    TMcode[offsetTM].targetRegister = targetRegister;
@@ -26,6 +28,7 @@ void filePrintROCode(FILE *file, char opcode[10], int targetRegister, int fstReg
    fprintf(file, "%3d:  %5s  %d,%d,%d \n", offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
 }
 
+// Função que gera código em linguagem do TMVS. Essa é a partir de um arquivo
 void generateCode(char* tmfile) { 
    FILE * file;
    file = fopen(tmfile,"w");
@@ -141,6 +144,7 @@ void generateCode(char* tmfile) {
    }
  }
 
+//  Printa Instruções RM
 void termPrintRMCode(char opcode[10], int targetRegister, int fstRegister, int sndRegister) {
    strcpy(TMcode[offsetTM].opcode, opcode);
    TMcode[offsetTM].targetRegister = targetRegister;
@@ -149,6 +153,7 @@ void termPrintRMCode(char opcode[10], int targetRegister, int fstRegister, int s
    printf("%3d:  %5s  %d,%7d(%d) \n", offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
 }
 
+// Printa Instruções RO
 void termPrintROCode(char opcode[10], int targetRegister, int fstRegister, int sndRegister) {
    strcpy(TMcode[offsetTM].opcode, opcode);
    TMcode[offsetTM].targetRegister = targetRegister;
@@ -157,6 +162,7 @@ void termPrintROCode(char opcode[10], int targetRegister, int fstRegister, int s
    printf("%3d:  %5s  %d,%d,%d \n", offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
 }
 
+// Função que gera código em linguagem do TMVS. Essa é a partir do input de terminal
 void generateCodeTerminal() { 
    pc = 0;                      // Program Counter
    acc = 0;                      // Accumulator 1

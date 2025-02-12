@@ -282,16 +282,15 @@ int main(int argc, char **argv) {
 
     printf("(code_offset = %d)\n", code_offset);
     if (global_context.errors  == 0){
-        print_intermediate_code();
-        //fetch_execute_cycle();
-        if (isItAFile == 1){
+        print_intermediate_code();          // Só printa o código intermediário que é basicamente código gerado no parser
+        if (isItAFile == 1){                // Se for em arquivo
             int extLength = strcspn(filename,".");
             tmfile = (char *) calloc(extLength+7, sizeof(char));
             strncpy(tmfile,filename,extLength);
             strcat(tmfile,".tm");
             printf("CÓDIGO EM ASM TM EM ARQUIVO %s\n", tmfile);
-            generateCode(tmfile);
-        } else {
+            generateCode(tmfile); 
+        } else {                        // Se não for
             printf("CÓDIGO EM ASM TM:\n");
             generateCodeTerminal();
         }
