@@ -1,4 +1,5 @@
 #define MAX_INSTRUCTIONS 999
+#include <stdio.h>
 
 extern int offsetTM;
 extern int gp;

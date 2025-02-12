@@ -174,7 +174,7 @@ command_sequence:
 ;
 
 command: SKIP
-    | IDENTIFIER ASSIGN exp ';' { 
+    | IDENTIFIER ASSIGN exp { 
         check_identifier_context(OP_STORE,$1);
     }
     | IF exp {

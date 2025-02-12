@@ -23,7 +23,7 @@ void filePrintROCode(FILE *file, char opcode[10], int targetRegister, int fstReg
    TMcode[offsetTM].targetRegister = targetRegister;
    TMcode[offsetTM].fstRegister = fstRegister;
    TMcode[offsetTM].sndRegister = sndRegister;
-   fprintf(file, "%3d:  %5s  %d,%7d,%d \n", offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+   fprintf(file, "%3d:  %5s  %d,%d,%d \n", offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
 }
 
 void generateCode(char* tmfile) { 
@@ -53,25 +53,28 @@ void generateCode(char* tmfile) {
             case OP_ADD : 
                temp = stack[top-1];
                stack[top-1] = stack[top-1] + stack[top];
-               filePrintROCode(file,"ADD", stack[top-1], stack[top], temp);
-               top--;
+               filePrintRMCode(file, "LD", acc1, 0, mp);
+               filePrintROCode(file,"ADD",  acc, acc1, acc);
                break;
             case OP_SUB : 
                temp = stack[top-1];
                stack[top-1] = stack[top-1] - stack[top];
-               filePrintROCode(file,"SUB", stack[top-1], stack[top], temp);
+               filePrintRMCode(file, "LD", acc1, 0, mp);
+               filePrintROCode(file,"SUB",  acc, acc1, acc);
                top--;
                break;
             case OP_MUL: 
                temp = stack[top-1];
                stack[top-1] = stack[top-1] * stack[top];
-               filePrintROCode(file,"MUL", stack[top-1], stack[top], temp);
+               filePrintRMCode(file, "LD", acc1, 0, mp);
+               filePrintROCode(file,"MUL",  acc, acc1, acc);
                top--;
                break;
             case OP_DIV : 
                temp = stack[top-1];
                stack[top-1] = stack[top-1] / stack[top];
-               filePrintROCode(file,"DIV", stack[top-1], stack[top], temp);
+               filePrintRMCode(file, "LD", acc1, 0, mp);
+               filePrintROCode(file,"DIV",  acc, acc1, acc);
                top--;
                break;
             case OP_EXP : // Não vou implementar esse!!!
@@ -80,7 +83,7 @@ void generateCode(char* tmfile) {
                 break;
             case OP_STORE : 
                stack[inst_struct.arg1] = stack[top--]; 
-               filePrintRMCode(file,"ST", inst_struct.arg1, stack[top--], 0);
+               filePrintRMCode(file,"ST", acc, 0, gp);
                break;
             case OP_JMP_FALSE : 
                int pctemp = pc + 1;
@@ -89,26 +92,24 @@ void generateCode(char* tmfile) {
                filePrintRMCode(file,"LDA", pctemp, 1, pctemp);
                filePrintRMCode(file,"LDC", acc, 1, acc);
                filePrintRMCode(file,"JEQ", acc, 2, pctemp);
+               printf("O PC antes é %d\n", pc);
                if ( stack[top--] == 0 ){
-                  pc = inst_struct.arg1;
-               } else {
-                  pc = pctemp - 1;
+                  jump_back_to = pctemp;
                }
                break;
             case OP_GOTO : // Uncoditional Jump
-               filePrintRMCode(file,"LDA", pc, 0, pc);
+               filePrintRMCode(file,"LDA", jump_back_to, 0, jump_back_to);
                break;
             case OP_DATA : // Não foi implementado
                top = top + inst_struct.arg1; break;
             case OP_LD_INT : 
                stack[++top] = inst_struct.arg1;
-               filePrintRMCode(file,"LDC", acc, stack[++top], 0);
-               filePrintRMCode(file,"ST", 0, 0, mp);
-               filePrintRMCode(file,"LD", 0, 0, gp);
+               filePrintRMCode(file,"LDC", acc, inst_struct.arg1, 0);
+               filePrintRMCode(file, "ST", acc, acc, mp);
                break;
             case OP_LD_VAR : 
                stack[++top] = stack[acc + inst_struct.arg1]; 
-               filePrintRMCode(file,"LD", acc, acc, mp);
+               filePrintRMCode(file,"LD", acc, acc, gp);
                break;
             case OP_LT : // Não foi implementado
                jump_back_to = pc;
@@ -117,7 +118,8 @@ void generateCode(char* tmfile) {
                break; 
             case OP_EQ : 
                jump_back_to = pc;
-               filePrintROCode(file,"SUB", acc1, acc, acc);
+               filePrintRMCode(file, "LD", acc1, acc, mp);
+               filePrintROCode(file,"SUB", acc, acc1, acc);
                if ( stack[top-1] == stack[top] ) { 
                   stack[--top] = 1; 
                }
@@ -153,7 +155,7 @@ void termPrintROCode(char opcode[10], int targetRegister, int fstRegister, int s
    TMcode[offsetTM].targetRegister = targetRegister;
    TMcode[offsetTM].fstRegister = fstRegister;
    TMcode[offsetTM].sndRegister = sndRegister;
-   printf("%3d:  %5s  %d,%7d,%d \n", offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
+   printf("%3d:  %5s  %d,%d,%d \n", offsetTM++,TMcode[offsetTM].opcode, TMcode[offsetTM].targetRegister, TMcode[offsetTM].fstRegister, TMcode[offsetTM].sndRegister);
 }
 
 void generateCodeTerminal() { 
@@ -179,27 +181,30 @@ void generateCodeTerminal() {
                termPrintROCode("OUT", acc, 0, 0);
                break;
             case OP_ADD : 
-               temp = stack[top-1];
                stack[top-1] = stack[top-1] + stack[top];
-               termPrintROCode("ADD", stack[top-1], stack[top], temp);
+               termPrintRMCode("LD", acc1, 0, mp);
+               termPrintROCode("ADD", acc, acc1, acc);
                top--;
                break;
             case OP_SUB : 
                temp = stack[top-1];
                stack[top-1] = stack[top-1] - stack[top];
-               termPrintROCode("SUB", stack[top-1], stack[top], temp);
+               termPrintRMCode("LD", acc1, 0, mp);
+               termPrintROCode("SUB", acc, acc1, acc);
                top--;
                break;
             case OP_MUL: 
                int temp = stack[top-1];
                stack[top-1] = stack[top-1] * stack[top];
-               termPrintROCode("MUL", stack[top-1], stack[top], temp);
+               termPrintRMCode("LD", acc1, 0, mp);
+               termPrintROCode("MUL", acc, acc1, acc);
                top--;
                break;
             case OP_DIV : 
                temp = stack[top-1];
                stack[top-1] = stack[top-1] / stack[top];
-               termPrintROCode("DIV", stack[top-1], stack[top], temp);
+               termPrintRMCode("LD", acc1, 0, mp);
+               termPrintROCode("DIV", acc, acc1, acc);
                top--;
                break;
             case OP_EXP : // Não vou implementar esse!!!
@@ -208,7 +213,7 @@ void generateCodeTerminal() {
                 break;
             case OP_STORE : 
                stack[inst_struct.arg1] = stack[top--]; 
-               termPrintRMCode("ST", inst_struct.arg1, stack[top--], 0);
+               termPrintRMCode("ST", acc, 0, gp);
                break;
             case OP_JMP_FALSE : 
                int pctemp = pc + 1;
@@ -216,27 +221,25 @@ void generateCodeTerminal() {
                termPrintRMCode("LDC", acc, 0, acc);
                termPrintRMCode("LDA", pctemp, 1, pctemp);
                termPrintRMCode("LDC", acc, 1, acc);
-               termPrintRMCode("JEQ", acc, 2, pc);
+               termPrintRMCode("JEQ", acc, 2, pctemp);
                if ( stack[top--] == 0 ){
-                  pc = inst_struct.arg1;
-               } else {
-                  pc = pctemp - 1;
+                  jump_back_to = inst_struct.arg1;
                }
                break;
             case OP_GOTO : // Uncoditional Jump
-               termPrintRMCode("LDA", pc, 0, pc);
+               termPrintRMCode("LDA", jump_back_to, 0, jump_back_to);
                break;
             case OP_DATA :
                top = top + inst_struct.arg1; break;
             case OP_LD_INT : 
                stack[++top] = inst_struct.arg1;
-               termPrintRMCode("LDC", acc, stack[++top], 0);
-               termPrintRMCode("ST", 0, 0, mp);
-               termPrintRMCode("LD", 0, 0, gp);
+               termPrintRMCode("LDC", acc, inst_struct.arg1, 0);
+               termPrintRMCode("ST", acc, acc, mp);
                break;
             case OP_LD_VAR : 
                stack[++top] = stack[acc + inst_struct.arg1]; 
-               termPrintRMCode("LD", acc, acc, mp);
+               termPrintRMCode("LD", acc, acc, gp);
+               termPrintRMCode("ST", acc, acc, mp);
                break;
             case OP_LT : 
                jump_back_to = pc;
@@ -245,7 +248,8 @@ void generateCodeTerminal() {
                break; 
             case OP_EQ : 
                jump_back_to = pc;
-               termPrintRMCode("SUB", acc1, acc, acc);
+               termPrintRMCode("LD", acc1, acc, mp);
+               termPrintRMCode("SUB", acc, acc1, acc);
                if ( stack[top-1] == stack[top] ) { 
                   stack[--top] = 1; 
                }
