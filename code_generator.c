@@ -92,7 +92,6 @@ void generateCode(char* tmfile) {
                filePrintRMCode(file,"LDA", pctemp, 1, pctemp);
                filePrintRMCode(file,"LDC", acc, 1, acc);
                filePrintRMCode(file,"JEQ", acc, 2, pctemp);
-               printf("O PC antes é %d\n", pc);
                if ( stack[top--] == 0 ){
                   jump_back_to = pctemp;
                }
