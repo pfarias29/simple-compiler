@@ -5,8 +5,8 @@
 #include "int_code_generator.h"
 
 int offsetTM = 0;
-int gp = 5;                        // Global Pointer
-int mp = 6;                        // Memory Pointer
+int gp = 5;                        // Global Pointer = tamanhodaMemoria
+int mp = 6;                        // Memory Pointer = fp
 int acc1 = 1;
 struct instructionTM TMcode[999];
 
@@ -46,65 +46,132 @@ void generateCode(char* tmfile) {
                filePrintROCode(file,"HALT", 0, 0, 0);
                break;
             case OP_READ_INT: 
-               filePrintROCode(file,"IN", acc, 0, 0);
-               filePrintRMCode(file,"ST", acc, acc, gp);
+               filePrintROCode(file,"IN", acc, 0, 0);          //  REGISTRADOR A SER SALVO,IGNORED,IGNORED 
+               filePrintRMCode(file,"ST", acc, 0, gp);       // STORE GUARDANDO NA POS ERRADA      //ST VALOR A SER SALVO REG, POSIÇÃO, OFFSET
                break;
             case OP_WRITE_INT : 
-               filePrintROCode(file,"OUT", acc, 0, 0);
+               filePrintROCode(file,"OUT", acc1, 0, 0);         //OUT REGISTRADOR,IGNORED,IGNORED
                break;
             case OP_ADD : 
-               filePrintRMCode(file, "LD", acc1, 0, mp);
-               filePrintROCode(file,"ADD",  acc, acc1, acc);
+               filePrintRMCode(file, "LD", acc1, 0, mp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
+               filePrintROCode(file,"ADD",  acc, acc1, acc);   //ADD REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                break;
             case OP_SUB : 
-               filePrintRMCode(file, "LD", acc1, 0, mp);
-               filePrintROCode(file,"SUB",  acc, acc1, acc);
+               filePrintRMCode(file, "LD", acc1, 0, mp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
+               filePrintROCode(file,"SUB",  acc, acc1, acc);   //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                top--;
                break;
             case OP_MUL: 
-               filePrintRMCode(file, "LD", acc1, 0, mp);
-               filePrintROCode(file,"MUL",  acc, acc1, acc);
+               filePrintRMCode(file, "LD", acc1, 0, mp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
+               filePrintROCode(file,"MUL",  acc, acc1, acc);   //MUL REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                break;
             case OP_DIV : 
-               filePrintRMCode(file, "LD", acc1, 0, mp);
-               filePrintROCode(file,"DIV",  acc, acc1, acc);
+               filePrintRMCode(file, "LD", acc1, 0, mp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
+               filePrintROCode(file,"DIV",  acc, acc1, acc);   //DIV REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                break;
             case OP_EXP : // Não vou implementar esse!!!
                 break;
             case OP_STORE : 
-               filePrintRMCode(file,"ST", acc, 0, gp);
+               filePrintRMCode(file,"ST", acc, 0, gp);         //ST VALOR A SER SALVO REG, REGISTRADOR, OFFSET
                break;
-            case OP_JMP_FALSE : 
+            case OP_JMP_FALSE : // OPCODE r,d(s)
                int pctemp = pc + 1;
-               filePrintRMCode(file,"JEQ", acc, 2, pctemp);
-               filePrintRMCode(file,"LDC", acc, 0, acc);
-               filePrintRMCode(file,"LDA", pctemp, 1, pctemp);
-               filePrintRMCode(file,"LDC", acc, 1, acc);
-               filePrintRMCode(file,"JEQ", acc, 2, pctemp);
+               int skipAddress = 0;
+               while (inst_struct.opcode != OP_GOTO){
+                  inst_struct = code[pctemp++];
+                  switch (inst_struct.opcode)
+                  {
+                  case OP_READ_INT:
+                     skipAddress = skipAddress + 2;
+                     break;
+                  case OP_WRITE_INT:
+                     skipAddress++;
+                     break;
+                  case OP_ADD:
+                     skipAddress = skipAddress + 2;
+                     break;   
+                  case OP_SUB:
+                     skipAddress = skipAddress + 2;
+                     break;
+                  case OP_MUL:
+                     skipAddress = skipAddress + 2;
+                     break;
+                  case OP_DIV:
+                     skipAddress = skipAddress + 2;
+                     break;
+                  case OP_EXP:
+                     /* code */
+                     break;
+                  case OP_STORE:
+                     skipAddress++;
+                     break;
+                  case OP_JMP_FALSE:
+                     skipAddress++;
+                     break;
+                  case OP_DATA:
+                     /* code */
+                     break;
+                  case OP_LD_INT:
+                     skipAddress++;
+                     break;
+                  case OP_LD_VAR:
+                     skipAddress++;
+                     break;
+                  case OP_LT:
+                     skipAddress = skipAddress + 5;
+                     break;
+                  case OP_EQ:
+                     skipAddress = skipAddress + 5;
+                     break;
+                  case OP_GT:
+                     skipAddress = skipAddress + 5;
+                     break;
+                  
+                  default:
+                     break;
+                  }
+               }
+               
+               
+               filePrintRMCode(file,"JEQ", acc, skipAddress, 7);  //mudar pc   //JEQ REGISTRADOR, ?, LABEL           
                jump_back_to = pctemp;
                break;
             case OP_GOTO : // Uncoditional Jump
-               filePrintRMCode(file,"LDA", jump_back_to, 0, jump_back_to);
+               filePrintRMCode(file,"LDA", jump_back_to, 0, jump_back_to);       //LDA REGISTRADOR, VALOR, ?
                break;
             case OP_DATA : // Não foi implementado
                top = top + inst_struct.arg1; break;
             case OP_LD_INT : 
-               filePrintRMCode(file,"LDC", acc, inst_struct.arg1, 0);
-               filePrintRMCode(file, "ST", acc, acc, mp);
+               filePrintRMCode(file,"LDC", acc, inst_struct.arg1, 0);   //LDC REGISTRADOR, VALOR DA CONSTANTE, OFFSET  
+               //filePrintRMCode(file, "ST", acc, acc, mp);               //ST VALOR A SER SALVO REG, POSIÇÃO, OFFSET
                break;
             case OP_LD_VAR : 
-               filePrintRMCode(file,"LD", acc, acc, gp);
+               filePrintRMCode(file,"LD", acc1, 0, gp);         //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
                break;
             case OP_LT : // Não foi implementado
                jump_back_to = pc;
+               filePrintROCode(file,"SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               filePrintRMCode(file,"JLT", acc, 2, 7);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               filePrintRMCode(file,"LDA", 7, 1, 7);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
+               
                break; 
             case OP_EQ : 
                jump_back_to = pc;
-               filePrintRMCode(file, "LD", acc1, acc, mp);
-               filePrintROCode(file,"SUB", acc, acc1, acc);
+               filePrintROCode(file,"SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               filePrintRMCode(file,"JEQ", acc, 2, 7);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               filePrintRMCode(file,"LDA", 7, 1, 7);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_GT : // Não foi implementado
                jump_back_to = pc;
+               filePrintROCode(file,"SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               filePrintRMCode(file,"JGT", acc, 2, 7);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               filePrintRMCode(file,"LDA", 7, 1, 7);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             default : 
                break;
@@ -187,7 +254,7 @@ void generateCodeTerminal() {
                jump_back_to = inst_struct.arg1;
                break;
             case OP_GOTO : // Uncoditional Jump
-               termPrintRMCode("LDA", jump_back_to, 0, jump_back_to);
+               //termPrintRMCode("LDA", jump_back_to, 0, jump_back_to);
                break;
             case OP_DATA :
                termPrintRMCode("LD", mp, 0, 0);

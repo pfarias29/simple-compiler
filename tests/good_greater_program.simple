@@ -1,0 +1,10 @@
+let
+   integer n.
+in
+    read n;
+    if 1 > n then
+        write n;
+    else 
+        skip;
+    fi;
+end
