@@ -51,7 +51,6 @@ Id_Node *id_node_append(Id_Node *node, char *id) // Cria novo e retorna novo nod
 	new_id->used = false;
 	return new_id;
 };
-
 typedef struct Context Context;
 struct Context 
 {
@@ -89,7 +88,7 @@ void check_identifier_context(enum code_ops operation, char *id)
 	}
 	else {
 		node->used = true;
-        intermediateCodeGenerator(operation, data_location());
+        intermediateCodeGenerator(operation, data_location(id), id);
 	}
 }
 
@@ -154,8 +153,8 @@ struct labels * labelSpaceAllocation() {
 /* Regras da gramática */
 
 program:
-    LET declarations IN {intermediateCodeGenerator(OP_DATA, data_location()-1);} command_sequence END {
-        intermediateCodeGenerator(OP_HALT, 0); 
+    LET declarations IN {intermediateCodeGenerator(OP_DATA, -1, "");} command_sequence END {
+        intermediateCodeGenerator(OP_HALT, 0, ""); 
         YYACCEPT;
     }
 ;
@@ -193,14 +192,14 @@ command: SKIP
         check_identifier_context(OP_READ_INT, $2);
     }
     | WRITE exp { 
-        intermediateCodeGenerator(OP_WRITE_INT, 0);
+        intermediateCodeGenerator(OP_WRITE_INT, 0, "");
     }
     ;
 
 exp:
       NUMBER { 
         $$ = temp_count++; 
-        intermediateCodeGenerator(OP_LD_INT, $1);
+        intermediateCodeGenerator(OP_LD_INT, $1, "");
     }
     | IDENTIFIER { 
         $$ = temp_count++; 
@@ -213,29 +212,29 @@ exp:
     | '(' exp ')' { $$ = $2; }
     | exp ADD exp { 
         $$ = temp_count++;  
-        intermediateCodeGenerator(OP_ADD, 0);
+        intermediateCodeGenerator(OP_ADD, 0, "");
     }
     | exp SUB exp { 
         $$ = temp_count++; 
-        intermediateCodeGenerator(OP_SUB, 0);}
+        intermediateCodeGenerator(OP_SUB, 0, "");}
     | exp MUL exp { 
         $$ = temp_count++; 
-        intermediateCodeGenerator(OP_MUL, 0);}
+        intermediateCodeGenerator(OP_MUL, 0, "");}
     | exp DIV exp { 
         $$ = temp_count++; 
-        intermediateCodeGenerator(OP_DIV, 0);}
+        intermediateCodeGenerator(OP_DIV, 0, "");}
     | exp EXP exp { 
         $$ = temp_count++; 
-        intermediateCodeGenerator(OP_EXP, 0);}
+        intermediateCodeGenerator(OP_EXP, 0, "");}
     | exp EQ exp { 
         $$ = temp_count++; 
-        intermediateCodeGenerator(OP_EQ, 0);}
+        intermediateCodeGenerator(OP_EQ, 0, "");}
     | exp LT exp { 
         $$ = temp_count++;  
-        intermediateCodeGenerator(OP_LT, 0);}
+        intermediateCodeGenerator(OP_LT, 0, "");}
     | exp GT exp { 
         $$ = temp_count++;  
-        intermediateCodeGenerator(OP_GT, 0);}
+        intermediateCodeGenerator(OP_GT, 0, "");}
     ;
 
 %%
@@ -283,6 +282,7 @@ int main(int argc, char **argv) {
     printf("(code_offset = %d)\n", code_offset);
     if (global_context.errors  == 0){
         print_intermediate_code();          // Só printa o código intermediário que é basicamente código gerado no parser
+        
         if (isItAFile == 1){                // Se for em arquivo
             int extLength = strcspn(filename,".");
             tmfile = (char *) calloc(extLength+7, sizeof(char));

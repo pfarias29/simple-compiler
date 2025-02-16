@@ -12,6 +12,9 @@ enum code_ops { OP_HALT, OP_STORE, OP_JMP_FALSE, OP_GOTO, OP_DATA, OP_LD_INT, OP
 struct instruction {
     enum code_ops opcode;
     int arg1;
+    int varOrConstOrOp;         // Se é uma variável (0) ou uma const (1) ou operação (2)
+    char variable[50];
+    int partOfOperation;        // Se for 1 ou 2 é uma operação (1 é o operando 1, 2 é o operando 2), se 0 não é
 };
 
 // Variáveis globais
@@ -23,11 +26,19 @@ extern int acc;
 extern int top;
 extern int data_offset;
 extern int code_offset;
+extern int variables_count;
+
+struct symbolTable{
+    int id;
+    char variable[50];
+};
+
 
 // Protótipos das funções
-int data_location();
+int data_location(char id[50]);
 int gen_label();
 int reserve_loc();
-void intermediateCodeGenerator(enum code_ops operation, int arg);
+void intermediateCodeGenerator(enum code_ops operation, int arg, char variable[50]);
+// void intermediateCodeGenerator(enum code_ops operation, int arg);
 void back_patch(int addr, enum code_ops operation, int arg);
 void print_intermediate_code();

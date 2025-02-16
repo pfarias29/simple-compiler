@@ -5,6 +5,7 @@ extern int offsetTM;
 extern int gp;
 extern int mp;
 extern int acc1;
+// extern int symbolCounter;
 
 struct instructionTM {
     char opcode[10];
@@ -12,6 +13,11 @@ struct instructionTM {
     int fstRegister;
     int sndRegister;
 };
+
+// struct symbolTable{
+//     int id;
+//     char variable[50];
+// };
 
 extern struct instructionTM TMcode[MAX_INSTRUCTIONS];
 

@@ -1,0 +1,9 @@
+let integer a, b.
+in read a;
+read b;
+if a = b then
+write 1;
+else 
+skip;
+fi;
+end
