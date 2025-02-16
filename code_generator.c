@@ -75,7 +75,7 @@ void generateCode(char* tmfile) {
                filePrintRMCode(file,"ST", acc, 0, gp);         //ST VALOR A SER SALVO REG, REGISTRADOR, OFFSET
                break;
             case OP_JMP_FALSE : // OPCODE r,d(s)
-               int pctemp = pc + 1;
+               int pctemp = pc;
                int skipAddress = 0;
                while (inst_struct.opcode != OP_GOTO){
                   inst_struct = code[pctemp++];
@@ -137,7 +137,7 @@ void generateCode(char* tmfile) {
                jump_back_to = pctemp;
                break;
             case OP_GOTO : // Uncoditional Jump
-               filePrintRMCode(file,"LDA", jump_back_to, 0, jump_back_to);       //LDA REGISTRADOR, VALOR, ?
+               //filePrintRMCode(file,"LDA", jump_back_to, 0, jump_back_to);       //LDA REGISTRADOR, VALOR, ?
                break;
             case OP_DATA : // Não foi implementado
                top = top + inst_struct.arg1; break;
