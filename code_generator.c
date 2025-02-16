@@ -53,20 +53,20 @@ void generateCode(char* tmfile) {
                filePrintROCode(file,"OUT", acc1, 0, 0);         //OUT REGISTRADOR,IGNORED,IGNORED
                break;
             case OP_ADD : 
-               filePrintRMCode(file, "LD", acc1, 0, mp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
+               filePrintRMCode(file, "LD", acc1, 0, gp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
                filePrintROCode(file,"ADD",  acc, acc1, acc);   //ADD REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                break;
             case OP_SUB : 
-               filePrintRMCode(file, "LD", acc1, 0, mp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
+               filePrintRMCode(file, "LD", acc1, 0, gp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
                filePrintROCode(file,"SUB",  acc, acc1, acc);   //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                top--;
                break;
             case OP_MUL: 
-               filePrintRMCode(file, "LD", acc1, 0, mp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
+               filePrintRMCode(file, "LD", acc1, 0, gp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
                filePrintROCode(file,"MUL",  acc, acc1, acc);   //MUL REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                break;
             case OP_DIV : 
-               filePrintRMCode(file, "LD", acc1, 0, mp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
+               filePrintRMCode(file, "LD", acc1, 0, gp);       //LD VALOR SALVO REG, POSICAO DE MEM, OFFSET
                filePrintROCode(file,"DIV",  acc, acc1, acc);   //DIV REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                break;
             case OP_EXP : // Não vou implementar esse!!!
