@@ -218,25 +218,25 @@ void generateCodeTerminal() {
                break;
             case OP_READ_INT: 
                termPrintROCode("IN", acc, 0, 0);
-               termPrintRMCode("ST", acc, acc, gp);
+               termPrintRMCode("ST", acc, 0, gp);
                break;
             case OP_WRITE_INT : 
-               termPrintROCode("OUT", acc, 0, 0);
+               termPrintROCode("OUT", acc1, 0, 0);
                break;
             case OP_ADD : 
-               termPrintRMCode("LD", acc1, 0, mp);
+               termPrintRMCode("LD", acc1, 0, gp);
                termPrintROCode("ADD", acc, acc1, acc);
                break;
             case OP_SUB : 
-               termPrintRMCode("LD", acc1, 0, mp);
+               termPrintRMCode("LD", acc1, 0, gp);
                termPrintROCode("SUB", acc, acc1, acc);
                break;
             case OP_MUL: 
-               termPrintRMCode("LD", acc1, 0, mp);
+               termPrintRMCode("LD", acc1, 0, gp);
                termPrintROCode("MUL", acc, acc1, acc);
                break;
             case OP_DIV : 
-               termPrintRMCode("LD", acc1, 0, mp);
+               termPrintRMCode("LD", acc1, 0, gp);
                termPrintROCode("DIV", acc, acc1, acc);
                break;
             case OP_EXP : // Não vou implementar esse!!!
@@ -245,13 +245,66 @@ void generateCodeTerminal() {
                termPrintRMCode("ST", acc, 0, gp);
                break;
             case OP_JMP_FALSE : 
-               int pctemp = pc + 1;
-               termPrintRMCode("JEQ", acc, 2, pctemp);
-               termPrintRMCode("LDC", acc, 0, acc);
-               termPrintRMCode("LDA", pctemp, 1, pctemp);
-               termPrintRMCode("LDC", acc, 1, acc);
-               termPrintRMCode("JEQ", acc, 2, pctemp);
-               jump_back_to = inst_struct.arg1;
+               int pctemp = pc;
+               int skipAddress = 0;
+               while (inst_struct.opcode != OP_GOTO){
+                  inst_struct = code[pctemp++];
+                  switch (inst_struct.opcode)
+                  {
+                  case OP_READ_INT:
+                     skipAddress = skipAddress + 2;
+                     break;
+                  case OP_WRITE_INT:
+                     skipAddress++;
+                     break;
+                  case OP_ADD:
+                     skipAddress = skipAddress + 2;
+                     break;   
+                  case OP_SUB:
+                     skipAddress = skipAddress + 2;
+                     break;
+                  case OP_MUL:
+                     skipAddress = skipAddress + 2;
+                     break;
+                  case OP_DIV:
+                     skipAddress = skipAddress + 2;
+                     break;
+                  case OP_EXP:
+                     /* code */
+                     break;
+                  case OP_STORE:
+                     skipAddress++;
+                     break;
+                  case OP_JMP_FALSE:
+                     skipAddress++;
+                     break;
+                  case OP_DATA:
+                     /* code */
+                     break;
+                  case OP_LD_INT:
+                     skipAddress++;
+                     break;
+                  case OP_LD_VAR:
+                     skipAddress++;
+                     break;
+                  case OP_LT:
+                     skipAddress = skipAddress + 5;
+                     break;
+                  case OP_EQ:
+                     skipAddress = skipAddress + 5;
+                     break;
+                  case OP_GT:
+                     skipAddress = skipAddress + 5;
+                     break;
+                  
+                  default:
+                     break;
+                  }
+               }
+               
+               
+               termPrintRMCode("JEQ", acc, skipAddress, 7);  //mudar pc   //JEQ REGISTRADOR, ?, LABEL           
+               jump_back_to = pctemp;
                break;
             case OP_GOTO : // Uncoditional Jump
                //termPrintRMCode("LDA", jump_back_to, 0, jump_back_to);
@@ -262,22 +315,38 @@ void generateCodeTerminal() {
                break;
             case OP_LD_INT : 
                termPrintRMCode("LDC", acc, inst_struct.arg1, 0);
-               termPrintRMCode("ST", acc, acc, mp);
+               //termPrintRMCode("ST", acc, acc, mp);
                break;
             case OP_LD_VAR : 
-               termPrintRMCode("LD", acc, acc, gp);
-               termPrintRMCode("ST", acc, acc, mp);
+               termPrintRMCode("LD", acc1, 0, gp);
+               //termPrintRMCode("ST", acc, acc, mp);
                break;
             case OP_LT : 
                jump_back_to = pc;
+               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               termPrintRMCode("JLT", acc, 2, 7);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               termPrintRMCode("LDA", 7, 1, 7);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
+      
                break; 
             case OP_EQ : 
                jump_back_to = pc;
-               termPrintRMCode("LD", acc1, acc, mp);
-               termPrintRMCode("SUB", acc, acc1, acc);
+               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               termPrintRMCode("JEQ", acc, 2, 7);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               termPrintRMCode("LDA", 7, 1, 7);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
+               
                break; 
             case OP_GT : 
                jump_back_to = pc;
+               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               termPrintRMCode("JGT", acc, 2, 7);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               termPrintRMCode("LDA", 7, 1, 7);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
+               
                break; 
             default : 
                break;
