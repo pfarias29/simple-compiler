@@ -1,0 +1,11 @@
+let integer a, b.
+in read a;
+read b;
+a := a + 2;
+b := b + 2;
+if a > b then
+write b;
+else 
+skip;
+fi;
+end
