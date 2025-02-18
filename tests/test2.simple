@@ -8,4 +8,5 @@ write b;
 else 
 skip;
 fi;
+write a;
 end
