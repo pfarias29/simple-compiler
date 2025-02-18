@@ -74,10 +74,6 @@ void generateCode(char* tmfile) {
                filePrintRMCode(file,"ST", acc, acc+code[pc].arg1, gp);
                break;
             case OP_JMP_FALSE : 
-               filePrintRMCode(file,"JEQ", acc, 2, pcr);
-               filePrintRMCode(file,"LDC", acc, 0, acc);
-               filePrintRMCode(file,"LDA", pcr, 1, pcr);
-               filePrintRMCode(file,"LDC", acc, 1, acc);
                filePrintRMCode(file,"JEQ", acc, code_offset-pc-2, pcr);
                break;
             case OP_GOTO : // Uncoditional Jump
@@ -107,13 +103,27 @@ void generateCode(char* tmfile) {
                break;
             case OP_LT : // Não foi implementado
                jump_back_to = pc;
+               filePrintROCode(file,"SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               filePrintRMCode(file,"JLT", acc, 2, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               filePrintRMCode(file,"LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_EQ : 
                jump_back_to = pc;
-               filePrintROCode(file,"SUB", acc, acc1, acc);
+               filePrintROCode(file,"SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               filePrintRMCode(file,"JEQ", acc, 2, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               filePrintRMCode(file,"LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_GT : // Não foi implementado
                jump_back_to = pc;
+               filePrintROCode(file,"SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               filePrintRMCode(file,"JGT", acc, 2, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               filePrintRMCode(file,"LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             default : 
                break;
@@ -184,10 +194,6 @@ void generateCodeTerminal() {
                termPrintRMCode("ST", acc, acc+code[pc].arg1, gp);
                break;
             case OP_JMP_FALSE : 
-               termPrintRMCode("JEQ", acc, 2, pcr);
-               termPrintRMCode("LDC", acc, 0, acc);
-               termPrintRMCode("LDA", pcr, 1, pcr);
-               termPrintRMCode("LDC", acc, 1, acc);
                termPrintRMCode("JEQ", acc, code_offset-pc-2, pcr);
                break;
             case OP_GOTO : // Uncoditional Jump
@@ -217,13 +223,27 @@ void generateCodeTerminal() {
                break;
             case OP_LT : 
                jump_back_to = pc;
+               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               termPrintRMCode("JLT", acc, 2, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               termPrintRMCode("LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_EQ : 
                jump_back_to = pc;
-               termPrintRMCode("SUB", acc, acc1, acc);
+               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               termPrintRMCode("JEQ", acc, 2, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               termPrintRMCode("LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_GT : 
                jump_back_to = pc;
+               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
+               termPrintRMCode("JGT", acc, 2, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
+               termPrintRMCode("LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
+               termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             default : 
                break;
