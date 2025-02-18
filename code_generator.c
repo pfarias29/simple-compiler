@@ -71,7 +71,7 @@ void generateCode(char* tmfile) {
             case OP_EXP : // Não vou implementar esse!!!
                 break;
             case OP_STORE : 
-               filePrintRMCode(file,"ST", acc, 0, gp);
+               filePrintRMCode(file,"ST", acc, acc+code[pc].arg1, gp);
                break;
             case OP_JMP_FALSE : 
                filePrintRMCode(file,"JEQ", acc, 2, pcr);
@@ -181,7 +181,7 @@ void generateCodeTerminal() {
             case OP_EXP : // Não vou implementar esse!!!
                 break;
             case OP_STORE : 
-               termPrintRMCode("ST", acc, 0, gp);
+               termPrintRMCode("ST", acc, acc+code[pc].arg1, gp);
                break;
             case OP_JMP_FALSE : 
                termPrintRMCode("JEQ", acc, 2, pcr);
