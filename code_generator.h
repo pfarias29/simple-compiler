@@ -14,6 +14,11 @@ struct instructionTM {
     int sndRegister;
 };
 
+struct argument {
+   bool isReg = false;
+   int regPartOfOperation = 0;
+};
+
 // struct symbolTable{
 //     int id;
 //     char variable[50];
