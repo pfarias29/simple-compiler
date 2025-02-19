@@ -262,6 +262,7 @@ void generateCodeTerminal() {
    acc1 = 1;                     // Accumulator 2
    int jump_back_to = 0;
    int temp = 0;
+   int reg;
    do { 
       inst_struct = code[pc];
       switch (inst_struct.opcode) {
@@ -269,28 +270,96 @@ void generateCodeTerminal() {
                termPrintROCode("HALT", 0, 0, 0);
                break;
             case OP_READ_INT: 
-               termPrintROCode("IN", acc, 0, 0);
-               termPrintRMCode("ST", acc, acc+code[pc].arg1, gp);
+               if (code[pc].arg1 <= 2) {
+                  termPrintROCode("IN", code[pc].arg1 + 2, 0, 0);
+               } else {
+                  termPrintROCode("IN", acc, 0, 0);
+                  termPrintRMCode("ST", acc, acc+code[pc].arg1, gp);
+               }
                break;
             case OP_WRITE_INT : 
-               termPrintROCode("OUT", acc, 0, 0);
+               if (code[pc].arg1 <= 2) {
+                  termPrintROCode("OUT", code[pc-1].arg1 + 2, 0, 0);
+               } else {
+                  termPrintROCode("OUT", acc, 0, 0);
+               }
                break;
-            case OP_ADD : 
-               termPrintROCode("ADD", acc, acc1, acc);
+            case OP_ADD :
+               if (code[pc+1].arg1 <= 2) {
+                  reg = code[pc+1].arg1 + 2;
+               } else {
+                  reg = acc;
+               }
+
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  termPrintROCode("ADD", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  termPrintROCode("ADD", reg, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  termPrintROCode("ADD", reg, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  termPrintROCode("ADD", reg, acc1, acc);
+               }
                break;
             case OP_SUB : 
-               termPrintROCode("SUB", acc, acc1, acc);
+               if (code[pc+1].arg1 <= 2) {
+                  reg = code[pc+1].arg1 + 2;
+               } else {
+                  reg = acc;
+               }
+
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  termPrintROCode("SUB", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  termPrintROCode("SUB", reg, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  termPrintROCode("SUB", reg, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  termPrintROCode("SUB", reg, acc1, acc);
+               }
                break;
             case OP_MUL: 
-               termPrintROCode("MUL", acc, acc1, acc);
+               if (code[pc+1].arg1 <= 2) {
+                  reg = code[pc+1].arg1 + 2;
+               } else {
+                  reg = acc;
+               }
+
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  termPrintROCode("MUL", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  termPrintROCode("MUL", reg, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  termPrintROCode("MUL", reg, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  termPrintROCode("MUL", reg, acc1, acc);
+               }
                break;
             case OP_DIV : 
-               termPrintROCode("DIV", acc, acc1, acc);
+               if (code[pc+1].arg1 <= 2) {
+                  reg = code[pc+1].arg1 + 2;
+               } else {
+                  reg = acc;
+               }
+
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  termPrintROCode("DIV", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  termPrintROCode("DIV", reg, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  termPrintROCode("DIV", reg, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  termPrintROCode("DIV", reg, acc1, acc);
+               }
                break;
             case OP_EXP : // Não vou implementar esse!!!
                 break;
             case OP_STORE : 
-               termPrintRMCode("ST", acc, acc+code[pc].arg1, gp);
+               if (code[pc].arg1 <= 2) {
+                  reg = code[pc].arg1 + 2;
+               } else {
+                  termPrintRMCode("ST", acc, acc+code[pc].arg1, gp);
+               }
                break;
             case OP_JMP_FALSE : 
                //termPrintRMCode("JEQ", acc, code_offset-pc-2, pcr);
@@ -298,9 +367,9 @@ void generateCodeTerminal() {
             case OP_GOTO : // Uncoditional Jump
                termPrintRMCode("LDA", pcr, 0, pcr);
                break;
-            case OP_DATA :
+            case OP_DATA : // Não foi implementado
                termPrintRMCode("LD", mp, 0, 0);
-               termPrintRMCode("ST", 0, 0, 0);   
+               termPrintRMCode("ST", 0, 0, 0); 
                break;
             case OP_LD_INT : 
                termPrintRMCode("LDC", acc, inst_struct.arg1, 0);
@@ -309,31 +378,67 @@ void generateCodeTerminal() {
                }
                if (inst_struct.partOfOperation == 2) {
                   termPrintRMCode("LD", acc1, 0, mp);
-               } 
+               }
                break;
             case OP_LD_VAR : 
                termPrintRMCode("LD", acc, acc+inst_struct.arg1, gp);
                if (inst_struct.partOfOperation == 1) {
-                  termPrintRMCode("ST", acc, 0, mp);
+                  if (code[pc].arg1 <= 2) {
+                     firstArgument.isReg = true;
+                     firstArgument.regPartOfOperation = code[pc].arg1 + 2;
+                  } else {
+                     firstArgument.isReg = false;
+                     termPrintRMCode("ST", acc, 0, mp);
+                  }
                }
                if (inst_struct.partOfOperation == 2) {
-                  termPrintRMCode("LD", acc1, 0, mp);
+                  if (code[pc].arg1 <= 2) {
+                     secondArgument.isReg = true;
+                     secondArgument.regPartOfOperation = code[pc].arg1 + 2;
+                  } else {
+                     secondArgument.isReg = false;
+                     termPrintRMCode("LD", acc1, 0, mp);
+                  }
                } 
                break;
-            case OP_LT : 
+            case OP_LT : // Não foi implementado
                jump_back_to = pc;
-               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
-               termPrintRMCode("JGE", acc, code_offset-pc-5, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  termPrintROCode("SUB", acc, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  termPrintROCode("SUB", acc, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  termPrintROCode("SUB", acc, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  termPrintROCode("SUB", acc, acc1, acc);
+               }
+               termPrintRMCode("JGE", acc, code_offset-pc-5, pcr);
                break; 
             case OP_EQ : 
                jump_back_to = pc;
-               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
-               termPrintRMCode("JNE", acc, code_offset-pc-5, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  termPrintROCode("SUB", acc, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  termPrintROCode("SUB", acc, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  termPrintROCode("SUB", acc, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  termPrintROCode("SUB", acc, acc1, acc);
+               }
+               termPrintRMCode("JNE", acc, code_offset-pc-5, pcr);
                break; 
-            case OP_GT : 
+            case OP_GT : // Não foi implementado
                jump_back_to = pc;
-               termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
-               termPrintRMCode("JLE", acc, code_offset-pc-5, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  termPrintROCode("SUB", acc, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  termPrintROCode("SUB", acc, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  termPrintROCode("SUB", acc, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  termPrintROCode("SUB", acc, acc1, acc);
+               }
+               termPrintRMCode("JLE", acc, code_offset-pc-5, pcr);
                break; 
             default : 
                break;
