@@ -1,5 +1,6 @@
 #define MAX_INSTRUCTIONS 999
 #include <stdio.h>
+#include <stdbool.h>
 
 extern int offsetTM;
 extern int gp;
@@ -15,8 +16,8 @@ struct instructionTM {
 };
 
 struct argument {
-   bool isReg = false;
-   int regPartOfOperation = 0;
+   bool isReg;
+   int regPartOfOperation;
 };
 
 // struct symbolTable{

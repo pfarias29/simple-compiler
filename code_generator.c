@@ -3,6 +3,7 @@
 #include "math.h"
 #include <string.h>
 #include "int_code_generator.h"
+#include <stdbool.h>
 
 int offsetTM = 0;
 int gp = 5;                        // Global Pointer
@@ -10,8 +11,6 @@ int mp = 6;                        // Memory Pointer
 int acc1 = 1;
 int pcr = 7;
 struct instructionTM TMcode[999];
-// struct symbolTable st[10];
-// int symbolCounter = 0;
 int symbolOffset = 0;
 char symbol[50];
 
@@ -48,9 +47,6 @@ void generateCode(char* tmfile) {
    int jump_back_to = 0;
    symbolOffset = 0;
 
-
-  
-   
    do { 
       inst_struct = code[pc];
       switch (inst_struct.opcode) {
@@ -58,111 +54,94 @@ void generateCode(char* tmfile) {
                filePrintROCode(file,"HALT", 0, 0, 0);
                break;
             case OP_READ_INT: 
-               if (code[pc].arg1=<2)
-               {
+               if (code[pc].arg1 <= 2) {
                   filePrintROCode(file,"IN", code[pc].arg1 + 2, 0, 0);
-               }else{
+               } else {
                   filePrintROCode(file,"IN", acc, 0, 0);
                   filePrintRMCode(file,"ST", acc, acc+code[pc].arg1, gp);
                }
                break;
             case OP_WRITE_INT : 
-               if (code[pc].arg1=<2)
-               {
-                  filePrintROCode(file,"OUT", code[pc].arg1 + 2, 0, 0);
-               }else{
+               if (code[pc].arg1 <= 2) {
+                  filePrintROCode(file,"OUT", code[pc-1].arg1 + 2, 0, 0);
+               } else {
                   filePrintROCode(file,"OUT", acc, 0, 0);
                }
                break;
-
             case OP_ADD :
-               if (code[pc+1].arg1=<2)
-               {
+               if (code[pc+1].arg1 <= 2) {
                   reg = code[pc+1].arg1 + 2;
-               }else{
+               } else {
                   reg = acc;
                }
 
-               if (firstArgument.isReg && secondArgument.isReg)
-               {
-                  filePrintROCode(file,"ADD", reg,firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
-               }else if (firstArgument.isReg){
-                  filePrintROCode(file,"ADD",  reg,firstArgument.regPartOfOperation, acc);
-               }else if (secondArgument.isReg){
-                  filePrintROCode(file,"ADD",  reg, acc1, secondArgument.regPartOfOperation);
-               }else
-               {
-                  filePrintROCode(file,"ADD",  reg, acc1, acc);
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  filePrintROCode(file,"ADD", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  filePrintROCode(file,"ADD", reg, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  filePrintROCode(file,"ADD", reg, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  filePrintROCode(file,"ADD", reg, acc1, acc);
                }
                break;
             case OP_SUB : 
-
-               if (code[pc+1].arg1=<2)
-               {
+               if (code[pc+1].arg1 <= 2) {
                   reg = code[pc+1].arg1 + 2;
-               }else{
+               } else {
                   reg = acc;
                }
 
-               if (firstArgument.isReg && secondArgument.isReg)
-               {
-                  filePrintROCode(file,"SUB", reg,firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
-               }else if (firstArgument.isReg){
-                  filePrintROCode(file,"SUB",  reg,firstArgument.regPartOfOperation, acc);
-               }else if (secondArgument.isReg){
-                  filePrintROCode(file,"SUB",  reg, acc1, secondArgument.regPartOfOperation);
-               }else
-               {
-                  filePrintROCode(file,"SUB",  reg, acc1, acc);
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  filePrintROCode(file,"SUB", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  filePrintROCode(file,"SUB", reg, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  filePrintROCode(file,"SUB", reg, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  filePrintROCode(file,"SUB", reg, acc1, acc);
                }
                break;
             case OP_MUL: 
-               if (code[pc+1].arg1=<2)
-               {
+               if (code[pc+1].arg1 <= 2) {
                   reg = code[pc+1].arg1 + 2;
-               }else{
+               } else {
                   reg = acc;
                }
 
-               if (firstArgument.isReg && secondArgument.isReg)
-               {
-                  filePrintROCode(file,"MUL", reg,firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
-               }else if (firstArgument.isReg){
-                  filePrintROCode(file,"MUL",  reg,firstArgument.regPartOfOperation, acc);
-               }else if (secondArgument.isReg){
-                  filePrintROCode(file,"MUL",  reg, acc1, secondArgument.regPartOfOperation);
-               }else
-               {
-                  filePrintROCode(file,"MUL",  reg, acc1, acc);
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  filePrintROCode(file,"MUL", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  filePrintROCode(file,"MUL", reg, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  filePrintROCode(file,"MUL", reg, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  filePrintROCode(file,"MUL", reg, acc1, acc);
                }
                break;
             case OP_DIV : 
-               if (code[pc+1].arg1=<2)
-               {
+               if (code[pc+1].arg1 <= 2) {
                   reg = code[pc+1].arg1 + 2;
-               }else{
+               } else {
                   reg = acc;
                }
 
-               if (firstArgument.isReg && secondArgument.isReg)
-               {
-                  filePrintROCode(file,"DIV", reg,firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
-               }else if (firstArgument.isReg){
-                  filePrintROCode(file,"DIV",  reg,firstArgument.regPartOfOperation, acc);
-               }else if (secondArgument.isReg){
-                  filePrintROCode(file,"DIV",  reg, acc1, secondArgument.regPartOfOperation);
-               }else
-               {
-                  filePrintROCode(file,"DIV",  reg, acc1, acc);
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  filePrintROCode(file,"DIV", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  filePrintROCode(file,"DIV", reg, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
+                  filePrintROCode(file,"DIV", reg, acc1, secondArgument.regPartOfOperation);
+               } else {
+                  filePrintROCode(file,"DIV", reg, acc1, acc);
                }
                break;
             case OP_EXP : // Não vou implementar esse!!!
                 break;
             case OP_STORE : 
-               if (code[pc].arg1=<2)
-               {
+               if (code[pc].arg1 <= 2) {
                   reg = code[pc].arg1 + 2;
-               }else{
+               } else {
                   filePrintRMCode(file,"ST", acc, acc+code[pc].arg1, gp);
                }
                break;
@@ -172,116 +151,78 @@ void generateCode(char* tmfile) {
             case OP_GOTO : // Uncoditional Jump
                filePrintRMCode(file,"LDA", pcr, 0, pcr);
                break;
-
-
             case OP_DATA : // Não foi implementado
                filePrintRMCode(file,"LD", mp, 0, 0);
                filePrintRMCode(file,"ST", 0, 0, 0); 
                break;
-
-
             case OP_LD_INT : 
                filePrintRMCode(file,"LDC", acc, inst_struct.arg1, 0);
-               if (inst_struct.partOfOperation == 1){
+               if (inst_struct.partOfOperation == 1) {
                   filePrintRMCode(file,"ST", acc, 0, mp);
                }
-               if (inst_struct.partOfOperation == 2){
+               if (inst_struct.partOfOperation == 2) {
                   filePrintRMCode(file,"LD", acc1, 0, mp);
                }
-                  
-                  
-               } 
                break;
-
-
             case OP_LD_VAR : 
                filePrintRMCode(file,"LD", acc, acc+inst_struct.arg1, gp);
-               if (inst_struct.partOfOperation == 1){
-                  if (code[pc].arg1=<2)
-                  {
+               if (inst_struct.partOfOperation == 1) {
+                  if (code[pc].arg1 <= 2) {
                      firstArgument.isReg = true;
                      firstArgument.regPartOfOperation = code[pc].arg1 + 2;
-                  }else
-                  {
-                      firstArgument.isReg = false;
+                  } else {
+                     firstArgument.isReg = false;
                      filePrintRMCode(file,"ST", acc, 0, mp);
                   }
                }
-               if (inst_struct.partOfOperation == 2){
-                  if (code[pc].arg1=<2)
-                  {
+               if (inst_struct.partOfOperation == 2) {
+                  if (code[pc].arg1 <= 2) {
                      secondArgument.isReg = true;
                      secondArgument.regPartOfOperation = code[pc].arg1 + 2;
-                  }else
-                  {
+                  } else {
                      secondArgument.isReg = false;
                      filePrintRMCode(file,"LD", acc1, 0, mp);
                   }
-                  
-                  
                } 
                break;
-
-
             case OP_LT : // Não foi implementado
                jump_back_to = pc;
-               if (firstArgument.isReg && secondArgument.isReg)
-               {
-                  filePrintROCode(file,"SUB", acc,firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
-               }else if (firstArgument.isReg){
-                  filePrintROCode(file,"SUB", acc,firstArgument.regPartOfOperation, acc);
-               }else if (secondArgument.isReg){
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  filePrintROCode(file,"SUB", acc, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  filePrintROCode(file,"SUB", acc, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
                   filePrintROCode(file,"SUB", acc, acc1, secondArgument.regPartOfOperation);
-               }else
-               {
+               } else {
                   filePrintROCode(file,"SUB", acc, acc1, acc);
                }
                filePrintRMCode(file,"JGE", acc, code_offset-pc-5, pcr);
-               
-                //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
-               //filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
-               //filePrintRMCode(file,"LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
-               //filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_EQ : 
                jump_back_to = pc;
-               if (firstArgument.isReg && secondArgument.isReg)
-               {
-                  filePrintROCode(file,"SUB", acc,firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
-               }else if (firstArgument.isReg){
-                  filePrintROCode(file,"SUB", acc,firstArgument.regPartOfOperation, acc);
-               }else if (secondArgument.isReg){
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  filePrintROCode(file,"SUB", acc, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  filePrintROCode(file,"SUB", acc, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
                   filePrintROCode(file,"SUB", acc, acc1, secondArgument.regPartOfOperation);
-               }else
-               {
+               } else {
                   filePrintROCode(file,"SUB", acc, acc1, acc);
                }
                filePrintRMCode(file,"JNE", acc, code_offset-pc-5, pcr);
-               
-                //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
-               //filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
-               //filePrintRMCode(file,"LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
-               //filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_GT : // Não foi implementado
                jump_back_to = pc;
-               if (firstArgument.isReg && secondArgument.isReg)
-               {
-                  filePrintROCode(file,"SUB", acc,firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
-               }else if (firstArgument.isReg){
-                  filePrintROCode(file,"SUB", acc,firstArgument.regPartOfOperation, acc);
-               }else if (secondArgument.isReg){
+               if (firstArgument.isReg && secondArgument.isReg) {
+                  filePrintROCode(file,"SUB", acc, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
+               } else if (firstArgument.isReg) {
+                  filePrintROCode(file,"SUB", acc, firstArgument.regPartOfOperation, acc);
+               } else if (secondArgument.isReg) {
                   filePrintROCode(file,"SUB", acc, acc1, secondArgument.regPartOfOperation);
-               }else
-               {
+               } else {
                   filePrintROCode(file,"SUB", acc, acc1, acc);
                }
                filePrintRMCode(file,"JLE", acc, code_offset-pc-5, pcr);
-               
-                //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
-               ///filePrintRMCode(file,"LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
-               //filePrintRMCode(file,"LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
-               //filePrintRMCode(file,"LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             default : 
                break;
@@ -290,11 +231,11 @@ void generateCode(char* tmfile) {
    } while (inst_struct.opcode != OP_HALT);
    fclose(file);
    int i = 0 ;
-   while (i < offsetTM){
-      printf("%3d:  %5s  %d,%d,%d \n",i,TMcode[i].opcode, TMcode[i].targetRegister, TMcode[i].fstRegister, TMcode[i].sndRegister);
+   while (i < offsetTM) {
+      printf("%3d:  %5s  %d,%d,%d \n", i, TMcode[i].opcode, TMcode[i].targetRegister, TMcode[i].fstRegister, TMcode[i].sndRegister);
       i++;
    }
- }
+}
 
 //  Printa Instruções RM
 void termPrintRMCode(char opcode[10], int targetRegister, int fstRegister, int sndRegister) {
@@ -363,19 +304,19 @@ void generateCodeTerminal() {
                break;
             case OP_LD_INT : 
                termPrintRMCode("LDC", acc, inst_struct.arg1, 0);
-               if (inst_struct.partOfOperation == 1){
+               if (inst_struct.partOfOperation == 1) {
                   termPrintRMCode("ST", acc, 0, mp);
                }
-               if (inst_struct.partOfOperation == 2){
+               if (inst_struct.partOfOperation == 2) {
                   termPrintRMCode("LD", acc1, 0, mp);
                } 
                break;
             case OP_LD_VAR : 
                termPrintRMCode("LD", acc, acc+inst_struct.arg1, gp);
-               if (inst_struct.partOfOperation == 1){
+               if (inst_struct.partOfOperation == 1) {
                   termPrintRMCode("ST", acc, 0, mp);
                }
-               if (inst_struct.partOfOperation == 2){
+               if (inst_struct.partOfOperation == 2) {
                   termPrintRMCode("LD", acc1, 0, mp);
                } 
                break;
@@ -383,29 +324,20 @@ void generateCodeTerminal() {
                jump_back_to = pc;
                termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                termPrintRMCode("JGE", acc, code_offset-pc-5, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
-               //termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
-               //termPrintRMCode("LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
-               //termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_EQ : 
                jump_back_to = pc;
                termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                termPrintRMCode("JNE", acc, code_offset-pc-5, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
-               //termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
-               //termPrintRMCode("LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
-              // termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             case OP_GT : 
                jump_back_to = pc;
                termPrintROCode("SUB", acc, acc1, acc);       //SUB REGISTRADOR A SER SALVO, REGISTRADOR 1, REGISTRADOR 2
                termPrintRMCode("JLE", acc, code_offset-pc-5, pcr);     //JEQ REGISTRADOR == 0, 2 -> tamanho do pulo, ENDEREÇO DE PC
-               //termPrintRMCode("LDC", acc, 0, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED  
-               //termPrintRMCode("LDA", pcr, 1, pcr);       //LDA JUMP INCONDICONAL +1                         CARREGA D + REG[S] EM REG[R]
-               //termPrintRMCode("LDC", acc, 1, acc);   //LDC ACC, VALOR DA CONSTANTE,IGNORED       //LDC SERVE PARA O ELSE
                break; 
             default : 
                break;
       }
       pc++;
    } while (inst_struct.opcode != OP_HALT);
- }
+}
