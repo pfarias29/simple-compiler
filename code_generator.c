@@ -47,6 +47,24 @@ void generateCode(char* tmfile) {
    int jump_back_to = 0;
    symbolOffset = 0;
 
+   // Inicializa o array de contagem de frequência
+   int freq[100] = {0}; // Supondo que os valores de arg1 variem de 0 a 99
+
+   // Conta a frequência de cada arg1
+   for (int i = 0; i < code_offset; i++) {
+      if (code[i].arg1 >= 0 && code[i].arg1 < 100) {
+         freq[code[i].arg1]++;
+      }
+   }
+
+   // Lista os valores de arg1 que mais aparecem
+   printf("Frequência de arg1:\n");
+   for (int i = 0; i < 100; i++) {
+      if (freq[i] > 0) {
+         printf("arg1: %d, frequência: %d\n", i, freq[i]);
+      }
+   }
+
    do { 
       inst_struct = code[pc];
       switch (inst_struct.opcode) {
