@@ -437,6 +437,139 @@ void generateCodeTerminal() {
    int jump_back_to = 0;
    int temp = 0;
    int reg;
+
+   // Inicializa o array de contagem de frequência
+   int freq[100] = {0}; // Supondo que os valores de arg1 variem de 0 a 99
+
+// Função de comparação para qsort
+int compare(const void *a, const void *b) {
+    int freqA = ((int*)a)[1];
+    int freqB = ((int*)b)[1];
+    return freqB - freqA; // Ordem decrescente
+}
+
+// Conta a frequência de cada arg1
+for (int i = 0; i < code_offset; i++) {
+    if (code[i].opcode == OP_LD_VAR || code[i].opcode == OP_STORE || code[i].opcode == OP_READ_INT) {
+        freq[code[i].arg1]++;
+    }
+}
+
+// Cria um array de pares (arg1, frequência)
+int freqPairs[100][2];
+for (int i = 0; i < 100; i++) {
+    freqPairs[i][0] = i; // arg1
+    freqPairs[i][1] = freq[i]; // frequência
+}
+
+// Ordena os pares pela frequência
+qsort(freqPairs, 100, sizeof(freqPairs[0]), compare);
+
+// Lista os valores de arg1 que mais aparecem
+printf("Frequência de arg1 (ordenada):\n");
+for (int i = 0; i < 100; i++) {
+    if (freqPairs[i][1] > 0) {
+        printf("arg1: %d, frequência: %d\n", freqPairs[i][0], freqPairs[i][1]);
+    }
+}
+
+int jumpTo(int pc) {
+   int pctemp = pc;
+   int skipAddress = 0;
+      while (inst_struct.opcode != OP_GOTO){
+         inst_struct = code[pctemp++];
+         switch (inst_struct.opcode)
+         {
+         case OP_READ_INT:
+            if (code[pc].arg1 == freqPairs[0][0] || code[pc].arg1 == freqPairs[1][0] || code[pc].arg1 == freqPairs[2][0]){
+               skipAddress++;
+            } else {
+               skipAddress = skipAddress + 2;
+            }
+            break;
+         case OP_WRITE_INT:
+            skipAddress++;
+            break;
+         case OP_ADD:
+            skipAddress++;
+            break;   
+         case OP_SUB:
+            skipAddress++;
+            break;
+         case OP_MUL:
+            skipAddress++;
+            break;
+         case OP_DIV:
+            skipAddress++;
+            break;
+         case OP_EXP:
+            /* code */
+            break;
+         case OP_STORE:
+            if (code[pc].arg1 == freqPairs[0][0] || code[pc].arg1 == freqPairs[1][0] || code[pc].arg1 == freqPairs[2][0]){
+            break;
+            } else {
+               skipAddress++;
+            }
+            break;
+         case OP_JMP_FALSE:
+            break;
+         case OP_DATA:
+            skipAddress = skipAddress + 2;
+            break;
+         case OP_LD_INT:
+            skipAddress = skipAddress + 5;
+            break;
+         case OP_LD_VAR:
+            skipAddress++;
+               if (inst_struct.partOfOperation == 1) {
+                  if (code[pc].arg1 == freqPairs[0][0]){
+                     firstArgument.isReg = true;
+                     firstArgument.regPartOfOperation = 2;
+                  } else if (code[pc].arg1 == freqPairs[1][0]){
+                     firstArgument.isReg = true;
+                     firstArgument.regPartOfOperation = 3;
+                  } else if (code[pc].arg1 == freqPairs[2][0]){
+                     firstArgument.isReg = true;
+                     firstArgument.regPartOfOperation = 4;
+                  } else {
+                     firstArgument.isReg = false;
+                     skipAddress++;
+                  }
+               }
+               if (inst_struct.partOfOperation == 2) {
+                  if (code[pc].arg1 == freqPairs[0][0]){
+                     secondArgument.isReg = true;
+                     secondArgument.regPartOfOperation = 2;
+                  } else if (code[pc].arg1 == freqPairs[1][0]){
+                     secondArgument.isReg = true;
+                     secondArgument.regPartOfOperation = 3;
+                  } else if (code[pc].arg1 == freqPairs[2][0]){
+                     secondArgument.isReg = true;
+                     secondArgument.regPartOfOperation = 4;
+                  } else {
+                     secondArgument.isReg = false;
+                     skipAddress++;
+                  }
+               } 
+            break;
+         case OP_LT:
+            skipAddress = skipAddress + 2;
+            break;
+         case OP_EQ:
+            skipAddress = skipAddress + 2;
+            break;
+         case OP_GT:
+            skipAddress = skipAddress + 2;
+            break;
+         
+         default:
+            break;
+         }
+      }
+   return skipAddress;
+}
+
    do { 
       inst_struct = code[pc];
       switch (inst_struct.opcode) {
@@ -444,27 +577,40 @@ void generateCodeTerminal() {
                termPrintROCode("HALT", 0, 0, 0);
                break;
             case OP_READ_INT: 
-               if (code[pc].arg1 <= 2) {
-                  termPrintROCode("IN", code[pc].arg1 + 2, 0, 0);
+               if (code[pc].arg1 == freqPairs[0][0]){
+                  termPrintROCode("IN", 2, 0, 0);
+               } else if (code[pc].arg1 == freqPairs[1][0]){
+                  termPrintROCode("IN", 3, 0, 0);
+               } else if (code[pc].arg1 == freqPairs[2][0]){
+                  termPrintROCode("IN", 4, 0, 0);
                } else {
                   termPrintROCode("IN", acc, 0, 0);
                   termPrintRMCode("ST", acc, acc+code[pc].arg1, gp);
                }
                break;
+
             case OP_WRITE_INT : 
-               if (code[pc].arg1 <= 2) {
-                  termPrintROCode("OUT", code[pc-1].arg1 + 2, 0, 0);
+               if (code[pc-1].arg1 == freqPairs[0][0]){
+                  termPrintROCode("OUT", 2, 0, 0);
+               } else if (code[pc-1].arg1 == freqPairs[1][0]){
+                  termPrintROCode("OUT", 3, 0, 0);
+               } else if (code[pc-1].arg1 == freqPairs[2][0]){
+                  termPrintROCode("OUT", 4, 0, 0);
                } else {
                   termPrintROCode("OUT", acc, 0, 0);
                }
                break;
+
             case OP_ADD :
-               if (code[pc+1].arg1 <= 2) {
-                  reg = code[pc+1].arg1 + 2;
+               if (code[pc+1].arg1 == freqPairs[0][0]){
+                  reg = 2;
+               } else if (code[pc+1].arg1 == freqPairs[1][0]){
+                  reg = 3;
+               } else if (code[pc+1].arg1 == freqPairs[2][0]){
+                  reg = 4;
                } else {
                   reg = acc;
                }
-
                if (firstArgument.isReg && secondArgument.isReg) {
                   termPrintROCode("ADD", reg, firstArgument.regPartOfOperation, secondArgument.regPartOfOperation);
                } else if (firstArgument.isReg) {
@@ -476,8 +622,12 @@ void generateCodeTerminal() {
                }
                break;
             case OP_SUB : 
-               if (code[pc+1].arg1 <= 2) {
-                  reg = code[pc+1].arg1 + 2;
+               if (code[pc+1].arg1 == freqPairs[0][0]){
+                  reg = 2;
+               } else if (code[pc+1].arg1 == freqPairs[1][0]){
+                  reg = 3;
+               } else if (code[pc+1].arg1 == freqPairs[2][0]){
+                  reg = 4;
                } else {
                   reg = acc;
                }
@@ -493,8 +643,12 @@ void generateCodeTerminal() {
                }
                break;
             case OP_MUL: 
-               if (code[pc+1].arg1 <= 2) {
-                  reg = code[pc+1].arg1 + 2;
+               if (code[pc+1].arg1 == freqPairs[0][0]){
+                  reg = 2;
+               } else if (code[pc+1].arg1 == freqPairs[1][0]){
+                  reg = 3;
+               } else if (code[pc+1].arg1 == freqPairs[2][0]){
+                  reg = 4;
                } else {
                   reg = acc;
                }
@@ -510,8 +664,12 @@ void generateCodeTerminal() {
                }
                break;
             case OP_DIV : 
-               if (code[pc+1].arg1 <= 2) {
-                  reg = code[pc+1].arg1 + 2;
+               if (code[pc+1].arg1 == freqPairs[0][0]){
+                  reg = 2;
+               } else if (code[pc+1].arg1 == freqPairs[1][0]){
+                  reg = 3;
+               } else if (code[pc+1].arg1 == freqPairs[2][0]){
+                  reg = 4;
                } else {
                   reg = acc;
                }
@@ -529,8 +687,12 @@ void generateCodeTerminal() {
             case OP_EXP : // Não vou implementar esse!!!
                 break;
             case OP_STORE : 
-               if (code[pc].arg1 <= 2) {
-                  reg = code[pc].arg1 + 2;
+               if (code[pc].arg1 == freqPairs[0][0]){
+                  reg = 2;
+               } else if (code[pc].arg1 == freqPairs[1][0]){
+                  reg = 3;
+               } else if (code[pc].arg1 == freqPairs[2][0]){
+                  reg = 4;
                } else {
                   termPrintRMCode("ST", acc, acc+code[pc].arg1, gp);
                }
@@ -557,18 +719,30 @@ void generateCodeTerminal() {
             case OP_LD_VAR : 
                termPrintRMCode("LD", acc, acc+inst_struct.arg1, gp);
                if (inst_struct.partOfOperation == 1) {
-                  if (code[pc].arg1 <= 2) {
+                  if (code[pc].arg1 == freqPairs[0][0]){
                      firstArgument.isReg = true;
-                     firstArgument.regPartOfOperation = code[pc].arg1 + 2;
+                     firstArgument.regPartOfOperation = 2;
+                  } else if (code[pc].arg1 == freqPairs[1][0]){
+                     firstArgument.isReg = true;
+                     firstArgument.regPartOfOperation = 3;
+                  } else if (code[pc].arg1 == freqPairs[2][0]){
+                     firstArgument.isReg = true;
+                     firstArgument.regPartOfOperation = 4;
                   } else {
                      firstArgument.isReg = false;
                      termPrintRMCode("ST", acc, 0, mp);
                   }
                }
                if (inst_struct.partOfOperation == 2) {
-                  if (code[pc].arg1 <= 2) {
+                  if (code[pc].arg1 == freqPairs[0][0]){
                      secondArgument.isReg = true;
-                     secondArgument.regPartOfOperation = code[pc].arg1 + 2;
+                     secondArgument.regPartOfOperation = 2;
+                  } else if (code[pc].arg1 == freqPairs[1][0]){
+                     secondArgument.isReg = true;
+                     secondArgument.regPartOfOperation = 3;
+                  } else if (code[pc].arg1 == freqPairs[2][0]){
+                     secondArgument.isReg = true;
+                     secondArgument.regPartOfOperation = 4;
                   } else {
                      secondArgument.isReg = false;
                      termPrintRMCode("LD", acc1, 0, mp);
@@ -586,7 +760,7 @@ void generateCodeTerminal() {
                } else {
                   termPrintROCode("SUB", acc, acc1, acc);
                }
-               termPrintRMCode("JGE", acc, code_offset-pc-5, pcr);
+               termPrintRMCode("JGE", acc, jumpTo(pc), pcr);
                break; 
             case OP_EQ : 
                jump_back_to = pc;
@@ -599,7 +773,7 @@ void generateCodeTerminal() {
                } else {
                   termPrintROCode("SUB", acc, acc1, acc);
                }
-               termPrintRMCode("JNE", acc, code_offset-pc-5, pcr);
+               termPrintRMCode("JNE", acc, jumpTo(pc), pcr);
                break; 
             case OP_GT : // Não foi implementado
                jump_back_to = pc;
@@ -612,7 +786,7 @@ void generateCodeTerminal() {
                } else {
                   termPrintROCode("SUB", acc, acc1, acc);
                }
-               termPrintRMCode("JLE", acc, code_offset-pc-5, pcr);
+               termPrintRMCode("JLE", acc, jumpTo(pc), pcr);
                break; 
             default : 
                break;
